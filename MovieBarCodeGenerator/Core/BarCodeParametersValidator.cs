@@ -30,9 +30,15 @@ public class BarCodeParametersValidator
         string rawImageHeight,
         bool useInputHeightForOutput,
         Func<IReadOnlyCollection<string>, bool> shouldOverwriteOutputPaths,
-        IEnumerable<IBarGenerator> barGenerators)
+        IEnumerable<IBarGenerator> barGenerators,
+        string fileNamePostfix = null)
     {
         var inputPath = rawInputPath.Trim(new[] { '"' });
+
+        bool IsDirectoryPath(string path)
+            => Directory.Exists(path)
+                || path.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)
+                || path.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal);
 
         (string Path, bool AlreadyExists) ValidateOutputPath(string initialPath)
         {
@@ -55,10 +61,49 @@ public class BarCodeParametersValidator
             return (path, File.Exists(path));
         }
 
-        var baseOutputPath = ValidateOutputPath(rawBaseOutputPath?.Trim(new[] { '"' })).Path;
+        var rawTrimmedOutput = rawBaseOutputPath?.Trim(new[] { '"' });
+        string baseOutputCandidate;
+        if (string.IsNullOrWhiteSpace(rawTrimmedOutput))
+        {
+            // Default: next to the input file (falls back to the current
+            // working directory when the input has no local directory,
+            // e.g. urls or bare file names).
+            var defaultFileName = $"{GetSafeFileNameWithoutExtension(inputPath)}.png";
+            string inputDir = null;
+            try
+            {
+                inputDir = Path.GetDirectoryName(inputPath);
+            }
+            catch
+            {
+                inputDir = null;
+            }
+            baseOutputCandidate = !string.IsNullOrEmpty(inputDir) && Directory.Exists(inputDir)
+                ? Path.Combine(inputDir, defaultFileName)
+                : defaultFileName;
+        }
+        else if (IsDirectoryPath(rawTrimmedOutput))
+        {
+            // Batch mode: one output per input, named after the input file.
+            baseOutputCandidate = Path.Combine(rawTrimmedOutput, $"{GetSafeFileNameWithoutExtension(inputPath)}.png");
+        }
+        else
+        {
+            baseOutputCandidate = rawTrimmedOutput;
+        }
 
-        var outputPaths = from generator in barGenerators
-                          let name = $"{GetSafeFileNameWithoutExtension(baseOutputPath)}{generator.FileNameSuffix}{Path.GetExtension(baseOutputPath)}"
+        var baseOutputPath = ValidateOutputPath(baseOutputCandidate).Path;
+
+        var postfix = fileNamePostfix ?? "";
+        if (postfix.Any(x => Path.GetInvalidFileNameChars().Contains(x)))
+        {
+            throw new ParameterValidationException("The filename postfix is invalid.");
+        }
+
+        var generatorList = barGenerators.ToList();
+        var outputPaths = from generator in generatorList
+                          let modeSuffix = generatorList.Count > 1 ? generator.FileNameSuffix : ""
+                          let name = $"{GetSafeFileNameWithoutExtension(baseOutputPath)}{modeSuffix}{postfix}{Path.GetExtension(baseOutputPath)}"
                           let path = Path.Combine(Path.GetDirectoryName(baseOutputPath), name)
                           select new { generator, ValidatedPath = ValidateOutputPath(path) };
 

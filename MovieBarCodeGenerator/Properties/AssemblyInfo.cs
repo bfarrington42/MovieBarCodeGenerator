@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MovieBarCodeGenerator")]
-[assembly: AssemblyCopyright("Copyright Â© Melvyn LaÃ¯ly 2011-2021")]
+[assembly: AssemblyCopyright("Copyright © Melvyn Laïly 2011-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

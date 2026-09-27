@@ -29,15 +29,21 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.inputPathTextBox = new System.Windows.Forms.TextBox();
             this.browseInputPathButton = new System.Windows.Forms.Button();
             this.generateButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.extensionsTextBox = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.postfixTextBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.outputPathTextBox = new System.Windows.Forms.TextBox();
             this.browseOutputPathButton = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.generatorInfoBody = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.barGeneratorList = new System.Windows.Forms.CheckedListBox();
@@ -47,6 +53,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.barCountTextBox = new System.Windows.Forms.TextBox();
             this.useInputHeightForOutputCheckBox = new System.Windows.Forms.CheckBox();
+            this.excludeCreditsCheckBox = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.imageHeightTextBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -55,7 +62,6 @@
             this.aboutButton = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.logTextBox = new System.Windows.Forms.TextBox();
-            this.generatorInfoBody = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -69,6 +75,8 @@
             this.inputPathTextBox.Name = "inputPathTextBox";
             this.inputPathTextBox.Size = new System.Drawing.Size(487, 20);
             this.inputPathTextBox.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.inputPathTextBox, "A video file, or a folder to batch-process every video in it and its subfolders. " +
+        "You can also drag and drop a file or folder here.");
             this.inputPathTextBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_DragDrop);
             this.inputPathTextBox.DragOver += new System.Windows.Forms.DragEventHandler(this.TextBox_DragOver);
             // 
@@ -87,7 +95,7 @@
             // 
             this.generateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.generateButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.generateButton.Location = new System.Drawing.Point(517, 368);
+            this.generateButton.Location = new System.Drawing.Point(517, 477);
             this.generateButton.Name = "generateButton";
             this.generateButton.Size = new System.Drawing.Size(75, 23);
             this.generateButton.TabIndex = 13;
@@ -107,6 +115,10 @@
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.label11);
+            this.groupBox1.Controls.Add(this.extensionsTextBox);
+            this.groupBox1.Controls.Add(this.label10);
+            this.groupBox1.Controls.Add(this.postfixTextBox);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.outputPathTextBox);
             this.groupBox1.Controls.Add(this.browseOutputPathButton);
@@ -115,10 +127,49 @@
             this.groupBox1.Controls.Add(this.browseInputPathButton);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(580, 117);
+            this.groupBox1.Size = new System.Drawing.Size(580, 203);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Files";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(6, 151);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(246, 13);
+            this.label11.TabIndex = 8;
+            this.label11.Text = "Video extensions, e.g. mp4,mkv (empty = defaults):";
+            // 
+            // extensionsTextBox
+            // 
+            this.extensionsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.extensionsTextBox.Location = new System.Drawing.Point(6, 167);
+            this.extensionsTextBox.Name = "extensionsTextBox";
+            this.extensionsTextBox.Size = new System.Drawing.Size(487, 20);
+            this.extensionsTextBox.TabIndex = 6;
+            this.toolTip1.SetToolTip(this.extensionsTextBox, "Comma or semicolon separated extensions. Accepts \"mp4\", \".mp4\" or \"*.mp4\". Leave " +
+        "empty to use all supported video types.");
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(6, 108);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(120, 13);
+            this.label10.TabIndex = 7;
+            this.label10.Text = "Custom filename postfix:";
+            // 
+            // postfixTextBox
+            // 
+            this.postfixTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.postfixTextBox.Location = new System.Drawing.Point(6, 124);
+            this.postfixTextBox.Name = "postfixTextBox";
+            this.postfixTextBox.Size = new System.Drawing.Size(487, 20);
+            this.postfixTextBox.TabIndex = 5;
+            this.toolTip1.SetToolTip(this.postfixTextBox, resources.GetString("postfixTextBox.ToolTip"));
             // 
             // label2
             // 
@@ -138,6 +189,8 @@
             this.outputPathTextBox.Name = "outputPathTextBox";
             this.outputPathTextBox.Size = new System.Drawing.Size(487, 20);
             this.outputPathTextBox.TabIndex = 3;
+            this.toolTip1.SetToolTip(this.outputPathTextBox, "An image file, or a folder to save one image per input video, named after each vi" +
+        "deo. Leave empty to save next to the input.");
             this.outputPathTextBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_DragDrop);
             this.outputPathTextBox.DragOver += new System.Windows.Forms.DragEventHandler(this.TextBox_DragOver);
             // 
@@ -158,6 +211,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.generatorInfoBody);
             this.groupBox2.Controls.Add(this.label9);
+            this.groupBox2.Controls.Add(this.excludeCreditsCheckBox);
             this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.barGeneratorList);
             this.groupBox2.Controls.Add(this.label7);
@@ -170,17 +224,30 @@
             this.groupBox2.Controls.Add(this.imageHeightTextBox);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.imageWidthTextBox);
-            this.groupBox2.Location = new System.Drawing.Point(12, 135);
+            this.groupBox2.Location = new System.Drawing.Point(12, 221);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(580, 227);
+            this.groupBox2.Size = new System.Drawing.Size(580, 250);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Barcode parameters";
             // 
+            // generatorInfoBody
+            // 
+            this.generatorInfoBody.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.generatorInfoBody.Location = new System.Drawing.Point(283, 130);
+            this.generatorInfoBody.Multiline = true;
+            this.generatorInfoBody.Name = "generatorInfoBody";
+            this.generatorInfoBody.ReadOnly = true;
+            this.generatorInfoBody.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.generatorInfoBody.Size = new System.Drawing.Size(288, 106);
+            this.generatorInfoBody.TabIndex = 15;
+            // 
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(3, 91);
+            this.label9.Location = new System.Drawing.Point(3, 114);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(200, 13);
             this.label9.TabIndex = 20;
@@ -203,7 +270,7 @@
             "2",
             "3",
             "4"});
-            this.barGeneratorList.Location = new System.Drawing.Point(6, 107);
+            this.barGeneratorList.Location = new System.Drawing.Point(6, 130);
             this.barGeneratorList.Name = "barGeneratorList";
             this.barGeneratorList.Size = new System.Drawing.Size(271, 106);
             this.barGeneratorList.TabIndex = 18;
@@ -266,6 +333,17 @@
             this.useInputHeightForOutputCheckBox.UseVisualStyleBackColor = true;
             this.useInputHeightForOutputCheckBox.CheckedChanged += new System.EventHandler(this.useInputHeightForOutputCheckBox_CheckedChanged);
             // 
+            // excludeCreditsCheckBox
+            // 
+            this.excludeCreditsCheckBox.AutoSize = true;
+            this.excludeCreditsCheckBox.Location = new System.Drawing.Point(6, 86);
+            this.excludeCreditsCheckBox.Name = "excludeCreditsCheckBox";
+            this.excludeCreditsCheckBox.Size = new System.Drawing.Size(121, 17);
+            this.excludeCreditsCheckBox.TabIndex = 12;
+            this.excludeCreditsCheckBox.Text = "Exclude end credits";
+            this.excludeCreditsCheckBox.UseVisualStyleBackColor = true;
+            this.toolTip1.SetToolTip(this.excludeCreditsCheckBox, "Detects dark end credits with a quick brightness scan and ends the barcode where they begin.");
+            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -304,7 +382,7 @@
             // 
             this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.Location = new System.Drawing.Point(49, 368);
+            this.progressBar1.Location = new System.Drawing.Point(49, 477);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(462, 23);
             this.progressBar1.Step = 1;
@@ -312,7 +390,7 @@
             // 
             // aboutButton
             // 
-            this.aboutButton.Location = new System.Drawing.Point(12, 368);
+            this.aboutButton.Location = new System.Drawing.Point(12, 477);
             this.aboutButton.Name = "aboutButton";
             this.aboutButton.Size = new System.Drawing.Size(31, 23);
             this.aboutButton.TabIndex = 12;
@@ -325,6 +403,7 @@
             this.toolTip1.AutoPopDelay = 5000;
             this.toolTip1.InitialDelay = 100;
             this.toolTip1.ReshowDelay = 100;
+            this.toolTip1.Popup += new System.Windows.Forms.PopupEventHandler(this.toolTip1_Popup);
             // 
             // logTextBox
             // 
@@ -332,7 +411,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.logTextBox.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.logTextBox.Location = new System.Drawing.Point(12, 397);
+            this.logTextBox.Location = new System.Drawing.Point(12, 506);
             this.logTextBox.Multiline = true;
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.ReadOnly = true;
@@ -341,31 +420,18 @@
             this.logTextBox.TabIndex = 14;
             this.logTextBox.WordWrap = false;
             // 
-            // generatorInfoBody
-            // 
-            this.generatorInfoBody.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.generatorInfoBody.Location = new System.Drawing.Point(283, 107);
-            this.generatorInfoBody.Multiline = true;
-            this.generatorInfoBody.Name = "generatorInfoBody";
-            this.generatorInfoBody.ReadOnly = true;
-            this.generatorInfoBody.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.generatorInfoBody.Size = new System.Drawing.Size(288, 106);
-            this.generatorInfoBody.TabIndex = 15;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(604, 461);
+            this.ClientSize = new System.Drawing.Size(604, 570);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.aboutButton);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.generateButton);
-            this.MinimumSize = new System.Drawing.Size(425, 440);
+            this.MinimumSize = new System.Drawing.Size(425, 549);
             this.Name = "MainForm";
             this.Text = "Movie BarCode Generator";
             this.groupBox1.ResumeLayout(false);
@@ -387,12 +453,17 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox outputPathTextBox;
         private System.Windows.Forms.Button browseOutputPathButton;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox postfixTextBox;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox extensionsTextBox;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox barWidthTextBox;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox barCountTextBox;
         private System.Windows.Forms.CheckBox useInputHeightForOutputCheckBox;
+        private System.Windows.Forms.CheckBox excludeCreditsCheckBox;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox imageHeightTextBox;
         private System.Windows.Forms.Label label3;

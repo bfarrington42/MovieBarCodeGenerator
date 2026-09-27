@@ -26,6 +26,8 @@ namespace MovieBarCodeGenerator.Core;
 
 public class FfmpegWrapper
 {
+    public const string DefaultExecutableName = "ffmpeg.exe";
+
     public string FfmpegExecutablePath { get; }
 
     public FfmpegWrapper(string ffmpegExecutablePath)
@@ -138,13 +140,20 @@ public class FfmpegWrapper
         return false;
     }
 
-    public IEnumerable<BitmapStream> GetImagesFromMedia(string inputPath, int frameCount, CancellationToken cancellationToken, Action<string> log = null, bool autoToneMapHDR = true)
+    public IEnumerable<BitmapStream> GetImagesFromMedia(string inputPath, int frameCount, CancellationToken cancellationToken, Action<string> log = null, bool autoToneMapHDR = true, TimeSpan? maxDuration = null)
     {
         var mediaInfo = GetMediaInfo(inputPath, cancellationToken, log);
 
         log?.Invoke("Reading images from FFmpeg...");
 
-        var fps = frameCount / mediaInfo.Duration.TotalSeconds;
+        var effectiveDuration = mediaInfo.Duration;
+        bool trimmed = maxDuration.HasValue && maxDuration.Value > TimeSpan.Zero && maxDuration.Value < effectiveDuration;
+        if (trimmed)
+        {
+            effectiveDuration = maxDuration.Value;
+        }
+
+        var fps = frameCount / effectiveDuration.TotalSeconds;
         var fpsFilter = $"fps={fps.ToInvariantString()}";
 
         // Note: tone mapping algorithms have been tested (*cough* *cough* on the Interstellar movie only =°)
@@ -162,7 +171,41 @@ public class FfmpegWrapper
         }
 
         // Output a raw stream of bitmap images taken at the specified frequency
-        var args = $"-i \"{inputPath}\" -vf \"{string.Join(",", vfilters)}\" -c:v bmp -f rawvideo -an -";
+        var durationArg = trimmed ? $" -t {effectiveDuration.TotalSeconds.ToInvariantString()}" : "";
+        var args = $"-i \"{inputPath}\"{durationArg} -vf \"{string.Join(",", vfilters)}\" -c:v bmp -f rawvideo -an -";
+
+        log?.Invoke($"FFmpeg arguments: {args}");
+
+        var process = StartFfmpegInstance(args, redirectError: log != null);
+
+        if (log != null)
+        {
+            process.ErrorDataReceived += (s, e) => log(e.Data);
+            process.BeginErrorReadLine();
+        }
+
+        IEnumerable<BitmapStream> GetLazyStream()
+        {
+            using (cancellationToken.Register(() => TryKill(process)))
+            using (var reader = new BinaryReader(process.StandardOutput.BaseStream))
+            {
+                while (BitmapStream.TryCreate(reader, out var bitmapStream, cancellationToken))
+                {
+                    yield return bitmapStream;
+                }
+            }
+        }
+
+        return GetLazyStream();
+    }
+
+    /// <summary>
+    /// Streams small frames at a fixed rate for credits detection.
+    /// Frame N covers timestamp [N / framesPerSecond, (N + 1) / framesPerSecond) e.g. smoothed over to prevent bright flashes breaking our detection
+    /// </summary>
+    public IEnumerable<BitmapStream> GetPreviewFrames(string inputPath, double framesPerSecond, int size, CancellationToken cancellationToken, Action<string> log = null)
+    {
+        var args = $"-i \"{inputPath}\" -vf \"fps={framesPerSecond.ToInvariantString()},scale={size}:{size}\" -c:v bmp -f rawvideo -an -";
 
         log?.Invoke($"FFmpeg arguments: {args}");
 

@@ -62,6 +62,11 @@
     <Compile Include="Core\BitmapStream.cs" />
     <Compile Include="Core\GdiBarGenerator.cs" />
     <Compile Include="Core\MagicScalerBarGenerator.cs" />
+    <Compile Include="Core\ScanlineBarGenerator.cs" />
+    <Compile Include="Core\LetterboxCropBarGenerator.cs" />
+    <Compile Include="Core\DominantColorBarGenerator.cs" />
+    <Compile Include="Core\CreditDetector.cs" />
+    <Compile Include="Core\SupportedVideoExtensions.cs" />
     <Compile Include="Core\Utils.cs" />
     <Compile Include="FileSystemService.cs" />
     <Compile Include="GUI\AboutBox.cs">
@@ -97,13 +102,21 @@
     <None Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Tools\ffmpeg.exe">
+      <Link>ffmpeg.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="ILRepack.Lib.MSBuild.Task">
-      <Version>2.0.18.2</Version>
+      <Version>2.0.48</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Nito.AsyncEx.Context">
       <Version>5.1.2</Version>
     </PackageReference>
-    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.12.2" />
+    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.15.0" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

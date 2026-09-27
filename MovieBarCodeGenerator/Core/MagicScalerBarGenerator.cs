@@ -68,16 +68,19 @@ public class MagicScalerBarGenerator : IBarGenerator
     public Image GetBar(BitmapStream source, int barWidth, int barHeight)
     {
         ProcessImageSettings GetSettingsBase()
-            => new()
+        {
+            var settings = new ProcessImageSettings()
             {
                 ResizeMode = CropScaleMode.Stretch,
                 Sharpen = false,
                 Interpolation = Interpolation,
-                SaveFormat = FileFormat.Bmp,
                 OrientationMode = OrientationMode.Ignore,
                 Width = barWidth,
                 Height = barHeight,
             };
+            settings.TrySetEncoderFormat(ImageMimeTypes.Bmp);
+            return settings;
+        }
 
         var processImageSettings = GetSettingsBase();
 

@@ -38,10 +38,17 @@ public class ImageStreamProcessor
         FfmpegWrapper ffmpeg,
         CancellationToken cancellationToken,
         IProgress<double> progress = null,
-        Action<string> log = null)
+        Action<string> log = null,
+        bool excludeCredits = false)
     {
+        TimeSpan? contentEnd = null;
+        if (excludeCredits)
+        {
+            contentEnd = CreditDetector.FindContentEnd(ffmpeg, parameters.InputPath, cancellationToken, log);
+        }
+
         var barCount = (int)Math.Round((double)parameters.Width / parameters.BarWidth);
-        var bitmapStreamSource = ffmpeg.GetImagesFromMedia(parameters.InputPath, barCount, cancellationToken, log);
+        var bitmapStreamSource = ffmpeg.GetImagesFromMedia(parameters.InputPath, barCount, cancellationToken, log, autoToneMapHDR: true, maxDuration: contentEnd);
 
         var barGenerators = parameters.GeneratorOutputPaths.Keys.ToArray();
         Bitmap[] finalBitmaps = new Bitmap[barGenerators.Length];

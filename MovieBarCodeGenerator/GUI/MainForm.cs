@@ -68,6 +68,18 @@ public partial class MainForm : Form
                     GdiBarGenerator.CreateLegacy(average: true),
                     "Same as 'Legacy', but vertically smoothed.",
                     initialCheckState: false),
+                new BarGeneratorViewModel(
+                    new ScanlineBarGenerator("Scanline"),
+                    "Samples the middle row of each frame and stretches it into a bar.\r\nSharper than the average-based modes and immune to letterbox bars, but noisier.",
+                    initialCheckState: false),
+                new BarGeneratorViewModel(
+                    new LetterboxCropBarGenerator("Normal (cropped)"),
+                    "Crops the top and bottom off each frame (letterbox bars) before scaling, so widescreen movies average the picture instead of the black bars.",
+                    initialCheckState: false),
+                new BarGeneratorViewModel(
+                    new DominantColorBarGenerator("Dominant color"),
+                    "Paints each bar the most common color of its frame.\r\nPoster-like barcodes instead of the smeared average.",
+                    initialCheckState: false),
             };
 
         barGeneratorList.DisplayMember = nameof(BarGeneratorViewModel.DisplayName);
@@ -94,7 +106,7 @@ public partial class MainForm : Form
             OverwritePrompt = true,
         };
 
-        _ffmpegWrapper = new FfmpegWrapper("ffmpeg.exe");
+        _ffmpegWrapper = new FfmpegWrapper(FfmpegWrapper.DefaultExecutableName);
         _imageProcessor = new ImageStreamProcessor();
         _barCodeParametersValidator = new BarCodeParametersValidator();
 
@@ -117,12 +129,14 @@ public partial class MainForm : Form
 
         // Validate parameters:
 
+        bool overwriteGranted = false;
         bool PromptOverwriteExistingOutputFile(IReadOnlyCollection<string> paths)
         {
             var promptResult = MessageBox.Show(this,
                  $"The following files already exist: '{string.Join(", ", paths.Select(x => $"'{x}'"))}'. Do you want to overwrite them?",
                  "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            return promptResult == DialogResult.Yes;
+            overwriteGranted = promptResult == DialogResult.Yes;
+            return overwriteGranted;
         }
 
         var generators =
@@ -138,6 +152,14 @@ public partial class MainForm : Form
             return;
         }
 
+        // Batch mode: input is a folder -> process every video file recursively
+        // into the output folder (named after each input file).
+        if (Directory.Exists(inputPathTextBox.Text.Trim('"')))
+        {
+            await RunBatchAsync(generators, PromptOverwriteExistingOutputFile);
+            return;
+        }
+
         BarCodeParameters parameters;
         try
         {
@@ -149,7 +171,8 @@ public partial class MainForm : Form
                 rawImageHeight: imageHeightTextBox.Text,
                 useInputHeightForOutput: useInputHeightForOutputCheckBox.Checked,
                 shouldOverwriteOutputPaths: PromptOverwriteExistingOutputFile,
-                barGenerators: generators);
+                barGenerators: generators,
+                fileNamePostfix: postfixTextBox.Text);
         }
         catch (OperationCanceledException)
         {
@@ -213,7 +236,8 @@ Bar width: {parameters.BarWidth}");
                     _ffmpegWrapper,
                     _cancellationTokenSource.Token,
                     progress,
-                    AppendLog);
+                    AppendLog,
+                    excludeCredits: excludeCreditsCheckBox.Checked);
             }, _cancellationTokenSource.Token);
         }
         catch (OperationCanceledException)
@@ -252,6 +276,17 @@ Bar width: {parameters.BarWidth}");
             foreach (var barcode in result)
             {
                 var outputPath = parameters.GeneratorOutputPaths[barcode.Key];
+                var outputDir = Path.GetDirectoryName(outputPath);
+                if (!string.IsNullOrEmpty(outputDir))
+                {
+                    Directory.CreateDirectory(outputDir);
+                }
+                if (File.Exists(outputPath) && !overwriteGranted)
+                {
+                    // The file appeared after validation (or validation was skipped).
+                    AppendLog($"WARNING: skipped saving output file '{outputPath}' because it already exists.");
+                    continue;
+                }
                 barcode.Value.Save(outputPath);
             }
         }
@@ -265,6 +300,191 @@ Bar width: {parameters.BarWidth}");
 
         AppendLog("Barcode generated successfully!");
         TaskbarProgress.SetState(Handle, TaskbarProgress.TaskbarStates.NoProgress);
+    }
+
+    private async Task RunBatchAsync(IBarGenerator[] generators, Func<IReadOnlyCollection<string>, bool> shouldOverwriteOutputPaths)
+    {
+        var rawInputDir = inputPathTextBox.Text.Trim('"');
+        var rawOutput = outputPathTextBox.Text.Trim('"');
+
+        if (!string.IsNullOrWhiteSpace(rawOutput) && File.Exists(rawOutput))
+        {
+            TaskbarProgress.SetState(Handle, TaskbarProgress.TaskbarStates.Error);
+            MessageBox.Show(this, "When the input is a folder, the output must be a folder.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            return;
+        }
+
+        var parsedExtensions = SupportedVideoExtensions.ParseOrNull(extensionsTextBox.Text);
+        var allowedExtensions = (parsedExtensions == null || parsedExtensions.Count == 0)
+            ? new HashSet<string>(SupportedVideoExtensions.Default, StringComparer.OrdinalIgnoreCase)
+            : parsedExtensions;
+        List<string> files;
+        try
+        {
+            files = Directory.EnumerateFiles(rawInputDir, "*", SearchOption.AllDirectories)
+                .Where(f => allowedExtensions.Contains(Path.GetExtension(f)))
+                .OrderBy(f => f, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            AppendLog("Error browsing input directory. " + ex.ToString());
+            TaskbarProgress.SetState(Handle, TaskbarProgress.TaskbarStates.Error);
+            MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            return;
+        }
+
+        if (files.Any() == false)
+        {
+            AppendLog($"No video files found in '{rawInputDir}'.");
+            MessageBox.Show(this, "No video files found in the input folder.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        var rawBarWidth = barWidthTextBox.Text;
+        var rawImageWidth = imageWidthTextBox.Text;
+        var rawImageHeight = imageHeightTextBox.Text;
+        var useInputHeightForOutput = useInputHeightForOutputCheckBox.Checked;
+
+        _cancellationTokenSource = new CancellationTokenSource();
+        var cancellationLocalRef = _cancellationTokenSource;
+
+        generateButton.Text = CancelButtonText;
+        generateButton.Enabled = false;
+        var dontCare = Task.Delay(1000).ContinueWith(t =>
+        {
+            try
+            {
+                Invoke(new Action(() => generateButton.Enabled = true));
+            }
+            catch { }
+        });
+
+        AppendLog($"Batch starting... {files.Count} video file(s) in '{rawInputDir}'.");
+
+        try
+        {
+            int index = 0;
+            foreach (var file in files)
+            {
+                if (cancellationLocalRef.IsCancellationRequested)
+                {
+                    AppendLog("Operation cancelled.");
+                    break;
+                }
+
+                index++;
+                AppendLog($"Processing file {index}/{files.Count}: '{file}'...");
+
+                BarCodeParameters parameters;
+                bool fileOverwriteGranted = false;
+                try
+                {
+                    parameters = _barCodeParametersValidator.GetValidatedParameters(
+                        rawInputPath: file,
+                        rawBaseOutputPath: rawOutput,
+                        rawBarWidth: rawBarWidth,
+                        rawImageWidth: rawImageWidth,
+                        rawImageHeight: rawImageHeight,
+                        useInputHeightForOutput: useInputHeightForOutput,
+                        shouldOverwriteOutputPaths: x => { fileOverwriteGranted = shouldOverwriteOutputPaths(x); return fileOverwriteGranted; },
+                        barGenerators: generators,
+                        fileNamePostfix: postfixTextBox.Text);
+                }
+                catch (OperationCanceledException)
+                {
+                    AppendLog("Skipped (output already exists).");
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    AppendLog("Error validating input parameters. " + ex.ToString());
+                    continue;
+                }
+
+                var progress = new PercentageProgressHandler(percentage =>
+                {
+                    var progressBarValue = Math.Min(100, (int)Math.Round(percentage * 100, MidpointRounding.AwayFromZero));
+                    Invoke(new Action(() =>
+                    {
+                        if (_cancellationTokenSource != null)
+                        {
+                            progressBar1.Value = progressBarValue;
+                            TaskbarProgress.SetValue(Handle, progressBarValue, 100);
+                        }
+                    }));
+                });
+
+                IReadOnlyDictionary<IBarGenerator, Bitmap> result = null;
+                try
+                {
+                    progressBar1.Value = progressBar1.Minimum;
+                    await Task.Run(() =>
+                    {
+                        result = _imageProcessor.CreateBarCodes(
+                            parameters,
+                            _ffmpegWrapper,
+                            _cancellationTokenSource.Token,
+                            progress,
+                            AppendLog,
+                            excludeCredits: excludeCreditsCheckBox.Checked);
+                    }, _cancellationTokenSource.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    AppendLog("Operation cancelled.");
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    AppendLog("Error: " + ex.ToString());
+                    continue;
+                }
+
+                if (cancellationLocalRef.IsCancellationRequested)
+                {
+                    AppendLog("Operation cancelled.");
+                    break;
+                }
+
+                try
+                {
+                    foreach (var barcode in result)
+                    {
+                        var outputPath = parameters.GeneratorOutputPaths[barcode.Key];
+                        var outputDir = Path.GetDirectoryName(outputPath);
+                        if (!string.IsNullOrEmpty(outputDir))
+                        {
+                            Directory.CreateDirectory(outputDir);
+                        }
+                        if (File.Exists(outputPath) && !fileOverwriteGranted)
+                        {
+                            // The file appeared after validation.
+                            AppendLog($"WARNING: skipped saving output file '{outputPath}' because it already exists.");
+                            continue;
+                        }
+                        barcode.Value.Save(outputPath);
+                        AppendLog($"File '{outputPath}' saved successfully!");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Unable to save the images: {ex}";
+                    AppendLog(message);
+                    MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            AppendLog("Batch finished!");
+        }
+        finally
+        {
+            generateButton.Text = GenerateButtonText;
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
+            progressBar1.Value = progressBar1.Minimum;
+            TaskbarProgress.SetState(Handle, TaskbarProgress.TaskbarStates.NoProgress);
+        }
     }
 
     private void browseInputPathButton_Click(object sender, EventArgs e)
@@ -390,6 +610,11 @@ Bar width: {parameters.BarWidth}");
         {
             generatorInfoBody.Text = $"{generator.DisplayName}\r\n{generator.Details}";
         }
+    }
+
+    private void toolTip1_Popup(object sender, PopupEventArgs e)
+    {
+
     }
 }
 

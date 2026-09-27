@@ -16,6 +16,7 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using MovieBarCodeGenerator.Core;
 using System.Collections.Generic;
 
 namespace MovieBarCodeGenerator.CLI;
@@ -26,6 +27,7 @@ public static class CLIUtils
     {
         public string PathPartWithoutWildcards { get; set; }
         public string FilePattern { get; set; }
+        public bool HadWildcard { get; set; }
     }
     /// <summary>
     /// the accepted input can be:
@@ -36,7 +38,12 @@ public static class CLIUtils
     /// - an url
     /// </summary>
     /// <returns>A list of existing file path matching the input.</returns>
-    public static IEnumerable<string> GetExpandedAndValidatedFilePaths(IFileSystemService fileSystemService, IEnumerable<string> rawUserInputs, bool recursive)
+    /// <param name="directoryExtensionsFilter">
+    /// When set, plain directory inputs (no wildcard) only yield files with these
+    /// extensions (e.g. video files). Explicit file paths, urls and wildcard
+    /// patterns are always respected as given.
+    /// </param>
+    public static IEnumerable<string> GetExpandedAndValidatedFilePaths(IFileSystemService fileSystemService, IEnumerable<string> rawUserInputs, bool recursive, ISet<string> directoryExtensionsFilter = null)
     {
         if (rawUserInputs == null)
         {
@@ -51,8 +58,10 @@ public static class CLIUtils
         {
             string rawInputWithoutWildCards = item;
             string inputPattern = "*";
+            bool hadWildcard = false;
             if (item.Contains('*') || item.Contains('?'))
             {
+                hadWildcard = true;
                 rawInputWithoutWildCards = fileSystemService.GetDirectoryName(item);
                 if (rawInputWithoutWildCards == "") // No directory name. The input is a simple file pattern
                 {
@@ -60,7 +69,7 @@ public static class CLIUtils
                 }
                 inputPattern = fileSystemService.GetFileName(item);
             }
-            allInputFiles.Add(new WildCardInput { PathPartWithoutWildcards = rawInputWithoutWildCards, FilePattern = inputPattern });
+            allInputFiles.Add(new WildCardInput { PathPartWithoutWildcards = rawInputWithoutWildCards, FilePattern = inputPattern, HadWildcard = hadWildcard });
         }
 
         IEnumerable<string> LazyEnumeration()
@@ -71,8 +80,15 @@ public static class CLIUtils
                 // The only way to know whether a path is a directory or a file is to test for its existence
                 if (fileSystemService.DirectoryExists(input.PathPartWithoutWildcards))
                 {
+                    // Only filter plain directory inputs. An explicit wildcard pattern
+                    // (e.g. "*.txt") is respected as given.
+                    bool applyFilter = directoryExtensionsFilter != null && !input.HadWildcard;
                     foreach (var file in fileSystemService.EnumerateDirectoryFiles(input.PathPartWithoutWildcards, input.FilePattern, searchOption))
                     {
+                        if (applyFilter && !SupportedVideoExtensions.IsSupported(file, directoryExtensionsFilter))
+                        {
+                            continue;
+                        }
                         yield return file;
                     }
                 }
