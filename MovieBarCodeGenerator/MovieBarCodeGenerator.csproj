@@ -63,8 +63,13 @@
     <Compile Include="Core\GdiBarGenerator.cs" />
     <Compile Include="Core\MagicScalerBarGenerator.cs" />
     <Compile Include="Core\ScanlineBarGenerator.cs" />
+    <Compile Include="Core\VerticalSweepBarGenerator.cs" />
+    <Compile Include="Core\IFrameAwareBarGenerator.cs" />
     <Compile Include="Core\LetterboxCropBarGenerator.cs" />
     <Compile Include="Core\DominantColorBarGenerator.cs" />
+    <Compile Include="Core\SubjectColorBarGenerator.cs" />
+    <Compile Include="Core\DominantColor.cs" />
+    <Compile Include="Core\EdgeDetector.cs" />
     <Compile Include="Core\CreditDetector.cs" />
     <Compile Include="Core\SupportedVideoExtensions.cs" />
     <Compile Include="Core\Utils.cs" />
@@ -104,6 +109,9 @@
   <ItemGroup>
     <Content Include="Tools\ffmpeg.exe">
       <Link>ffmpeg.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tools\ffmpeg.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

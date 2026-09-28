@@ -114,6 +114,10 @@ This parameter can be set multiple times.",
             "Generate a scanline barcode (middle row of each frame stretched into a bar).\nDefaults to False.",
             x => arguments.GenerateScanline = x != null);
 
+        options.Add("vertical-sweep",
+            "Generate a vertical-sweep barcode (a vertical column of each frame stretched into a bar, sweeping left to right across frames).\nDefaults to False.",
+            x => arguments.GenerateVerticalSweep = x != null);
+
         options.Add("cropped",
             "Generate a letterbox-cropped barcode (top and bottom cropped off before scaling).\nDefaults to False.",
             x => arguments.GenerateCropped = x != null);
@@ -122,8 +126,12 @@ This parameter can be set multiple times.",
             "Generate a dominant-color barcode (each bar painted the most common color of its frame).\nDefaults to False.",
             x => arguments.GenerateDominant = x != null);
 
+        options.Add("subject",
+            "Generate a subject-color barcode (each bar painted the dominant color of the largest object in its frame).\nDefaults to False.",
+            x => arguments.GenerateSubject = x != null);
+
         options.Add("exclude-credits",
-            "Detect dark end credits with a brightness pre-scan and stop the barcode where they begin.\nDefaults to False.",
+            "Detect end credits by scanning the last 15 minutes for dark, text-heavy frames and stop the barcode where they begin.\nDefaults to False.",
             x => arguments.ExcludeCredits = x != null);
 
         try
@@ -195,11 +203,17 @@ This parameter can be set multiple times.",
         if (arguments.GenerateScanline)
             generators.Add(new ScanlineBarGenerator("Scanline"));
 
+        if (arguments.GenerateVerticalSweep)
+            generators.Add(new VerticalSweepBarGenerator("Vertical sweep"));
+
         if (arguments.GenerateCropped)
             generators.Add(new LetterboxCropBarGenerator("Normal (cropped)"));
 
         if (arguments.GenerateDominant)
             generators.Add(new DominantColorBarGenerator("Dominant color"));
+
+        if (arguments.GenerateSubject)
+            generators.Add(new SubjectColorBarGenerator("Subject color"));
 
         if (!generators.Any())
         {
@@ -313,7 +327,9 @@ class RawArguments
     public bool GenerateLegacy { get; set; }
     public bool GenerateLegacySmoothed { get; set; }
     public bool GenerateScanline { get; set; }
+    public bool GenerateVerticalSweep { get; set; }
     public bool GenerateCropped { get; set; }
     public bool GenerateDominant { get; set; }
+    public bool GenerateSubject { get; set; }
     public bool ExcludeCredits { get; set; }
 }

@@ -203,9 +203,12 @@ public class FfmpegWrapper
     /// Streams small frames at a fixed rate for credits detection.
     /// Frame N covers timestamp [N / framesPerSecond, (N + 1) / framesPerSecond) e.g. smoothed over to prevent bright flashes breaking our detection
     /// </summary>
-    public IEnumerable<BitmapStream> GetPreviewFrames(string inputPath, double framesPerSecond, int size, CancellationToken cancellationToken, Action<string> log = null)
+    public IEnumerable<BitmapStream> GetPreviewFrames(string inputPath, double framesPerSecond, int size, CancellationToken cancellationToken, Action<string> log = null, TimeSpan? startOffset = null)
     {
-        var args = $"-i \"{inputPath}\" -vf \"fps={framesPerSecond.ToInvariantString()},scale={size}:{size}\" -c:v bmp -f rawvideo -an -";
+        var seekArg = startOffset.HasValue && startOffset.Value > TimeSpan.Zero
+            ? $"-ss {startOffset.Value.TotalSeconds.ToInvariantString()} "
+            : "";
+        var args = $"{seekArg}-i \"{inputPath}\" -vf \"fps={framesPerSecond.ToInvariantString()},scale={size}:{size}\" -c:v bmp -f rawvideo -an -";
 
         log?.Invoke($"FFmpeg arguments: {args}");
 

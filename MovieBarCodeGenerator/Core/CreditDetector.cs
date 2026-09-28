@@ -25,16 +25,23 @@ using System.Threading;
 namespace MovieBarCodeGenerator.Core;
 
 /// <summary>
-/// Detects end credits by scanning mean frame brightness at 1 fps. Credits
-/// are typically dark background with sparse text, so the content ends where
-/// sustained brightness stops. Returns the content duration, or null when no
-/// plausible credits boundary is found (and everything is kept).
+/// Detects end credits by scanning the last minutes of the video at 1 fps.
+/// Credit rolls are dark background with bright text, so a credit frame has
+/// low mean brightness but high edge density: that combination separates real
+/// credits both from bright content and from smooth dark scenes (fades, night
+/// shots). Returns the content duration, or null when no plausible credits
+/// boundary is found (and everything is kept).
 /// </summary>
 public static class CreditDetector
 {
     private const double SampleFps = 1.0;
     private const int SampleSize = 32;
-    private const double DarkThreshold = 18.0;
+    private static readonly TimeSpan TailScanWindow = TimeSpan.FromMinutes(15);
+    private const double CreditBrightnessCap = 45.0;
+    private const int EdgeSobelThreshold = 50;
+    private const double EdgeDensityThreshold = 0.05;
+    private const int MaxGapSeconds = 10;
+    private const int MinCreditsSeconds = 60;
     private const double MinTrimFraction = 0.01;
     private const double MaxTrimFraction = 0.40;
 
@@ -46,55 +53,56 @@ public static class CreditDetector
             return null;
         }
 
-        log?.Invoke("Scanning brightness to detect end credits...");
+        var scanStart = mediaInfo.Duration > TailScanWindow ? mediaInfo.Duration - TailScanWindow : TimeSpan.Zero;
+        log?.Invoke(scanStart > TimeSpan.Zero
+            ? $"Scanning brightness and edges over the last {TailScanWindow:g} to detect end credits..."
+            : "Scanning brightness and edges to detect end credits...");
 
-        var means = new List<double>();
-        foreach (var bitmapStream in ffmpeg.GetPreviewFrames(inputPath, SampleFps, SampleSize, cancellationToken, log))
+        var brightness = new List<double>();
+        var edgeDensity = new List<double>();
+        foreach (var bitmapStream in ffmpeg.GetPreviewFrames(inputPath, SampleFps, SampleSize, cancellationToken, log, scanStart > TimeSpan.Zero ? scanStart : null))
         {
             using (bitmapStream)
             using (var image = Image.FromStream(bitmapStream, true, false))
             using (var bitmap = new Bitmap(image))
             {
-                means.Add(MeanBrightness(bitmap));
+                brightness.Add(MeanBrightness(bitmap));
+                edgeDensity.Add(EdgeDetector.ComputeEdgeDensity(bitmap, EdgeSobelThreshold));
             }
             cancellationToken.ThrowIfCancellationRequested();
         }
 
-        if (means.Any() == false)
+        if (brightness.Any() == false)
         {
             log?.Invoke("Credits detection: no frames sampled, keeping the full video.");
             return null;
         }
 
-        // Median-smooth over a 5 second window so isolated bright flashes
-        // such as title cards inside the credits don't break up the dark tail.
-        var smoothed = MedianSmooth(means, 5);
-
-        // Walk back over the dark tail until sustained bright content is found.
-        int cutoffIndex = smoothed.Count;
-        for (int i = smoothed.Count - 1; i >= 0; i--)
+        int cutoffIndex = FindCreditsStart(brightness, edgeDensity);
+        if (cutoffIndex < 0)
         {
-            if (smoothed[i] > DarkThreshold)
-            {
-                cutoffIndex = i + 1;
-                break;
-            }
-
-            cutoffIndex = i;
+            log?.Invoke("Credits detection: no credit roll found, keeping the full video.");
+            return null;
         }
 
-        double cutoffSeconds = cutoffIndex / SampleFps;
+        if (cutoffIndex == 0 && scanStart > TimeSpan.Zero)
+        {
+            log?.Invoke("Credits detection: the credit roll reaches the start of the scan window, keeping the full video.");
+            return null;
+        }
+
+        double cutoffSeconds = scanStart.TotalSeconds + (cutoffIndex / SampleFps);
         double trimFraction = 1 - (cutoffSeconds / mediaInfo.Duration.TotalSeconds);
 
         if (trimFraction < MinTrimFraction)
         {
-            log?.Invoke("Credits detection: no dark tail found, keeping the full video.");
+            log?.Invoke("Credits detection: no credit roll found, keeping the full video.");
             return null;
         }
 
         if (trimFraction > MaxTrimFraction)
         {
-            log?.Invoke($"Credits detection: dark tail is {trimFraction:P0} of the video, refusing to trim (limit {MaxTrimFraction:P0}). Keeping the full video.");
+            log?.Invoke($"Credits detection: credits run is {trimFraction:P0} of the video, refusing to trim (limit {MaxTrimFraction:P0}). Keeping the full video.");
             return null;
         }
 
@@ -103,7 +111,66 @@ public static class CreditDetector
         return contentEnd;
     }
 
-    private static List<double> MedianSmooth(List<double> values, int window)
+    /// <summary>
+    /// Finds the first frame of the trailing credit roll: a sustained run of
+    /// dim but edge-dense frames (credit text) reaching near the end of the
+    /// sample. Short dark gaps inside the run (black pages between credits)
+    /// and any trailing non-credit frames (logos after the credits) are
+    /// tolerated. Returns the cutoff frame index, or -1 when there is no
+    /// plausible credit roll.
+    /// </summary>
+    public static int FindCreditsStart(IReadOnlyList<double> brightness, IReadOnlyList<double> edgeDensity)
+    {
+        if (brightness == null || edgeDensity == null || brightness.Count == 0 || brightness.Count != edgeDensity.Count)
+        {
+            return -1;
+        }
+
+        // Median-smooth so isolated bright flashes (title cards) and flicker
+        // don't break up the run.
+        var smoothBrightness = MedianSmooth(brightness, 5);
+        var smoothEdges = MedianSmooth(edgeDensity, 3);
+
+        bool IsCredit(int i) => smoothBrightness[i] < CreditBrightnessCap && smoothEdges[i] >= EdgeDensityThreshold;
+
+        int runStart = -1;
+        int runEnd = -1;
+        int gap = 0;
+        for (int i = smoothBrightness.Count - 1; i >= 0; i--)
+        {
+            if (IsCredit(i))
+            {
+                gap = 0;
+                runStart = i;
+                if (runEnd < 0)
+                {
+                    runEnd = i;
+                }
+            }
+            else
+            {
+                gap++;
+                if (runEnd >= 0 && gap > MaxGapSeconds)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (runStart < 0)
+        {
+            return -1;
+        }
+
+        if (runEnd - runStart + 1 < MinCreditsSeconds)
+        {
+            return -1;
+        }
+
+        return runStart;
+    }
+
+    private static List<double> MedianSmooth(IReadOnlyList<double> values, int window)
     {
         int radius = window / 2;
         var result = new List<double>(values.Count);
@@ -135,7 +202,7 @@ public static class CreditDetector
                 Marshal.Copy(IntPtr.Add(data.Scan0, y * stride), row, 0, stride);
                 for (int x = 0; x < data.Width; x++)
                 {
-                    total += (0.299 * row[(x * 3) + 2]) + (0.587 * row[(x * 3) + 1]) + (0.114 * row[x * 3]);
+                    total += (0.21 * row[(x * 3) + 2]) + (0.72 * row[(x * 3) + 1]) + (0.07 * row[x * 3]);
                 }
             }
 

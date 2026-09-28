@@ -17,8 +17,6 @@
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 
 namespace MovieBarCodeGenerator.Core;
 
@@ -29,8 +27,6 @@ namespace MovieBarCodeGenerator.Core;
 public class DominantColorBarGenerator : IBarGenerator
 {
     private const int SampleSize = 64;
-    private const int BitsPerChannel = 5;
-    private const int BucketsPerChannel = 1 << BitsPerChannel;
 
     public DominantColorBarGenerator(
         string displayName,
@@ -65,56 +61,5 @@ public class DominantColorBarGenerator : IBarGenerator
     }
 
     private static Color ComputeDominantColor(Bitmap image)
-    {
-        var rect = new Rectangle(0, 0, image.Width, image.Height);
-        var data = image.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-        try
-        {
-            var counts = new int[BucketsPerChannel * BucketsPerChannel * BucketsPerChannel];
-            var sumR = new long[counts.Length];
-            var sumG = new long[counts.Length];
-            var sumB = new long[counts.Length];
-
-            int stride = Math.Abs(data.Stride);
-            var row = new byte[stride];
-            for (int y = 0; y < data.Height; y++)
-            {
-                Marshal.Copy(IntPtr.Add(data.Scan0, y * stride), row, 0, stride);
-                for (int x = 0; x < data.Width; x++)
-                {
-                    int b = row[(x * 4) + 0] >> (8 - BitsPerChannel);
-                    int g = row[(x * 4) + 1] >> (8 - BitsPerChannel);
-                    int r = row[(x * 4) + 2] >> (8 - BitsPerChannel);
-                    int bucket = ((r * BucketsPerChannel) + g) * BucketsPerChannel + b;
-                    counts[bucket]++;
-                    sumR[bucket] += row[(x * 4) + 2];
-                    sumG[bucket] += row[(x * 4) + 1];
-                    sumB[bucket] += row[(x * 4) + 0];
-                }
-            }
-
-            int best = 0;
-            for (int i = 1; i < counts.Length; i++)
-            {
-                if (counts[i] > counts[best])
-                {
-                    best = i;
-                }
-            }
-
-            if (counts[best] == 0)
-            {
-                return Color.Black;
-            }
-
-            return Color.FromArgb(
-                (int)(sumR[best] / counts[best]),
-                (int)(sumG[best] / counts[best]),
-                (int)(sumB[best] / counts[best]));
-        }
-        finally
-        {
-            image.UnlockBits(data);
-        }
+        => DominantColor.ComputeDominantColor(image);
     }
-}

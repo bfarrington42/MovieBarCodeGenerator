@@ -73,12 +73,20 @@ public partial class MainForm : Form
                     "Samples the middle row of each frame and stretches it into a bar.\r\nSharper than the average-based modes and immune to letterbox bars, but noisier.",
                     initialCheckState: false),
                 new BarGeneratorViewModel(
+                    new VerticalSweepBarGenerator("Vertical sweep"),
+                    "Samples a vertical column of each frame and stretches it into a bar.\r\nThe column sweeps left to right across frames, wrapping around.",
+                    initialCheckState: false),
+                new BarGeneratorViewModel(
                     new LetterboxCropBarGenerator("Normal (cropped)"),
                     "Crops the top and bottom off each frame (letterbox bars) before scaling, so widescreen movies average the picture instead of the black bars.",
                     initialCheckState: false),
                 new BarGeneratorViewModel(
                     new DominantColorBarGenerator("Dominant color"),
                     "Paints each bar the most common color of its frame.\r\nPoster-like barcodes instead of the smeared average.",
+                    initialCheckState: false),
+                new BarGeneratorViewModel(
+                    new SubjectColorBarGenerator("Subject color"),
+                    "Paints each bar the dominant color of the largest object in its frame.\r\nLike dominant color, but isolated to the main subject.",
                     initialCheckState: false),
             };
 

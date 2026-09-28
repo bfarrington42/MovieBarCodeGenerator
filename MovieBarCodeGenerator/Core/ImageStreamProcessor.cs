@@ -57,6 +57,7 @@ public class ImageStreamProcessor
         int actualBarHeight = 0;
 
         int x = 0;
+        int frameIndex = 0;
         foreach (var bitmapStream in bitmapStreamSource)
         {
             if (x == 0)
@@ -77,13 +78,22 @@ public class ImageStreamProcessor
                 for (int i = 0; i < barGenerators.Length; i++)
                 {
                     bitmapStream.Position = 0;
-                    var bar = barGenerators[i].GetBar(bitmapStream, parameters.BarWidth, actualBarHeight);
+                    Image bar;
+                    if (barGenerators[i] is IFrameAwareBarGenerator frameAwareGenerator)
+                    {
+                        bar = frameAwareGenerator.GetBar(bitmapStream, parameters.BarWidth, actualBarHeight, frameIndex, barCount);
+                    }
+                    else
+                    {
+                        bar = barGenerators[i].GetBar(bitmapStream, parameters.BarWidth, actualBarHeight);
+                    }
                     var srcRect = new Rectangle(0, 0, bar.Width, bar.Height);
                     var destRect = new Rectangle(x, 0, parameters.BarWidth, actualBarHeight);
                     finalBitmapGraphics[i].DrawImage(bar, destRect, srcRect, GraphicsUnit.Pixel);
                 }
 
                 x += parameters.BarWidth;
+                frameIndex++;
 
                 progress?.Report((double)x / parameters.Width);
             }
