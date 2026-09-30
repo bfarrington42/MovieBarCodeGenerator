@@ -17,6 +17,7 @@
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using MovieBarCodeGenerator.Core;
+using MovieBarCodeGenerator.Properties;
 using PhotoSauce.MagicScaler;
 using System.Collections.Generic;
 using System.Data;
@@ -27,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace MovieBarCodeGenerator.GUI;
 
-public partial class MainForm : Form
+public partial class MainForm : Krypton.Toolkit.KryptonForm
 {
     private const string GenerateButtonText = "Generate!";
     private const string CancelButtonText = "Cancel";
@@ -40,11 +41,33 @@ public partial class MainForm : Form
 
     private CancellationTokenSource _cancellationTokenSource;
 
+    private readonly Color _progressTrackDarkColor;
+    private readonly LogForm _logForm;
+    private bool _logUserMoved;
+    private bool _dockingLog;
+    private readonly Image _bulbLit;
+    private readonly Image _bulbUnlit;
+    private readonly Image _aboutImage;
+
     private readonly List<BarGeneratorViewModel> _barGenerators;
 
     public MainForm()
     {
         InitializeComponent();
+
+        _logForm = new LogForm();
+        _ = _logForm.Handle;
+        _logForm.UserClosed += (s, e) => logToggleButton.Checked = false;
+        _logForm.LocationChanged += (s, e) =>
+        {
+            if (!_dockingLog)
+            {
+                _logUserMoved = true;
+            }
+        };
+        LocationChanged += (s, e) => FollowLogWindow();
+        ResizeEnd += (s, e) => FollowLogWindow();
+        generatorInfoBody.Resize += (s, e) => TextBoxAutoScroll.Update(generatorInfoBody);
 
         var executingAssembly = Assembly.GetExecutingAssembly();
         Icon = Icon.ExtractAssociatedIcon(executingAssembly.Location);
@@ -59,6 +82,10 @@ public partial class MainForm : Form
                 new BarGeneratorViewModel(
                     new MagicScalerBarGenerator("Normal (smoothed)", "_smoothed", average: true, InterpolationSettings.CubicSmoother),
                     "Almost the same as the 'Normal' mode, but vertically smoothed.\r\nIt also uses a 'cubic smoother' resampling algorithm that generates images sharper than the normal algorithm.",
+                    initialCheckState: false),
+                new BarGeneratorViewModel(
+                    new LetterboxCropBarGenerator("Normal (cropped)"),
+                    "Crops the top and bottom off each frame (letterbox bars) before scaling, so widescreen movies average the picture instead of the black bars.",
                     initialCheckState: false),
                 new BarGeneratorViewModel(
                     GdiBarGenerator.CreateLegacy(average: false),
@@ -77,10 +104,6 @@ public partial class MainForm : Form
                     "Samples a vertical column of each frame and stretches it into a bar.\r\nThe column sweeps left to right across frames, wrapping around.",
                     initialCheckState: false),
                 new BarGeneratorViewModel(
-                    new LetterboxCropBarGenerator("Normal (cropped)"),
-                    "Crops the top and bottom off each frame (letterbox bars) before scaling, so widescreen movies average the picture instead of the black bars.",
-                    initialCheckState: false),
-                new BarGeneratorViewModel(
                     new DominantColorBarGenerator("Dominant color"),
                     "Paints each bar the most common color of its frame.\r\nPoster-like barcodes instead of the smeared average.",
                     initialCheckState: false),
@@ -93,7 +116,10 @@ public partial class MainForm : Form
         barGeneratorList.DisplayMember = nameof(BarGeneratorViewModel.DisplayName);
         barGeneratorList.Items.Clear();
         foreach (var item in _barGenerators)
-            barGeneratorList.Items.Add(item, isChecked: item.Checked);
+        {
+            int index = barGeneratorList.Items.Add(item);
+            barGeneratorList.SetItemChecked(index, item.Checked);
+        }
 
         barGeneratorList.SelectedItem = _barGenerators.First(x => x.Checked); // So that the right panel displays something.
         barGeneratorList.SelectedItem = null; // Unselect so a click on the line will not uncheck the item.
@@ -120,6 +146,177 @@ public partial class MainForm : Form
 
         useInputHeightForOutputCheckBox.Checked = true;
         generateButton.Text = GenerateButtonText;
+
+        kryptonManager1.BaseFont = new Font("Segoe UI", 9f);
+        _progressTrackDarkColor = progressBar1.StateCommon.Back.Color2;
+        _bulbLit = LoadEmbeddedImage("light-mode.png");
+        _bulbUnlit = LoadEmbeddedImage("dark-mode.png");
+        _aboutImage = LoadEmbeddedImage("about.png");
+        aboutButton.StateCommon.Back.Color1 = Color.Transparent;
+        aboutButton.StateCommon.Back.ColorStyle = Krypton.Toolkit.PaletteColorStyle.Solid;
+        aboutButton.StateCommon.Border.DrawBorders = Krypton.Toolkit.PaletteDrawBorders.None;
+        aboutButton.Values.Image = _aboutImage;
+        themeButton.StateCommon.Back.Color1 = Color.Transparent;
+        themeButton.StateCommon.Back.ColorStyle = Krypton.Toolkit.PaletteColorStyle.Solid;
+        themeButton.StateCommon.Border.DrawBorders = Krypton.Toolkit.PaletteDrawBorders.None;
+        themeButton.Values.ImageStates.ImageNormal = _bulbLit;
+        themeButton.Values.ImageStates.ImageTracking = _bulbLit;
+        themeButton.Values.ImageStates.ImagePressed = _bulbLit;
+        themeButton.Values.ImageStates.ImageDisabled = _bulbUnlit;
+        themeButton.Values.ImageStates.ImageCheckedNormal = _bulbUnlit;
+        themeButton.Values.ImageStates.ImageCheckedTracking = _bulbUnlit;
+        themeButton.Values.ImageStates.ImageCheckedPressed = _bulbUnlit;
+        themeButton.Checked = Settings.Default.Theme != "Light";
+        ApplyTheme(themeButton.Checked);
+    }
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+        WindowCorners.ApplyRoundedCorners(this);
+    }
+
+    private void themeButton_CheckedChanged(object sender, EventArgs e)
+    {
+        ApplyTheme(themeButton.Checked);
+    }
+
+    private void logToggleButton_CheckedChanged(object sender, EventArgs e)
+    {
+        if (_logForm == null)
+        {
+            return;
+        }
+
+        if (logToggleButton.Checked)
+        {
+            DockLogWindow();
+            if (!_logForm.Visible)
+            {
+                _logForm.Show(this);
+            }
+        }
+        else
+        {
+            _logForm.Hide();
+        }
+    }
+
+    private void DockLogWindow()
+    {
+        PositionLogWindow();
+        _logUserMoved = false;
+    }
+
+    private void FollowLogWindow()
+    {
+        if (_logForm.Visible && !_logUserMoved)
+        {
+            PositionLogWindow();
+        }
+    }
+
+    private void PositionLogWindow()
+    {
+        _dockingLog = true;
+        try
+        {
+            _logForm.Bounds = new Rectangle(Bounds.Right + 8, Bounds.Top, 800, Bounds.Height);
+        }
+        finally
+        {
+            _dockingLog = false;
+        }
+    }
+
+    private void ApplyTheme(bool dark)
+    {
+        kryptonManager1.GlobalPaletteMode = dark
+            ? Krypton.Toolkit.PaletteMode.Office2010Black
+            : Krypton.Toolkit.PaletteMode.Office2010Silver;
+        ApplyListHighlightColors(dark);
+        ApplyListBaseColors(dark);
+        ApplyInfoBoxColors(dark);
+        _logForm.ApplyThemeColors(dark);
+        progressBar1.StateCommon.Back.Color2 = dark ? _progressTrackDarkColor : Color.White;
+        Settings.Default.Theme = dark ? "Dark" : "Light";
+        Settings.Default.Save();
+    }
+
+    /// <summary>
+    /// Matches the checklist background and item text to the surrounding
+    /// panel colors sampled from the Office 2010 themes, so the list blends
+    /// in like the description box does.
+    /// </summary>
+    private void ApplyListBaseColors(bool dark)
+    {
+        if (dark)
+        {
+            barGeneratorList.StateCommon.Back.Color1 = Color.FromArgb(113, 113, 113);
+            barGeneratorList.StateCommon.Back.Color2 = Color.FromArgb(113, 113, 113);
+            barGeneratorList.StateCommon.Back.ColorStyle = Krypton.Toolkit.PaletteColorStyle.Solid;
+            barGeneratorList.StateCommon.Item.Content.ShortText.Color1 = Color.FromArgb(255, 255, 255);
+        }
+        else
+        {
+            barGeneratorList.StateCommon.Back.Color1 = Color.FromArgb(227, 230, 232);
+            barGeneratorList.StateCommon.Back.Color2 = Color.FromArgb(227, 230, 232);
+            barGeneratorList.StateCommon.Back.ColorStyle = Krypton.Toolkit.PaletteColorStyle.Solid;
+            barGeneratorList.StateCommon.Item.Content.ShortText.Color1 = Color.FromArgb(59, 59, 59);
+        }
+    }
+
+    /// <summary>
+    /// Matches the generator description box to the surrounding panel colors
+    /// sampled from the Office 2010 themes: dark gray with white text in dark
+    /// mode, cool off-white with charcoal text in light mode.
+    /// </summary>
+    private void ApplyInfoBoxColors(bool dark)
+    {
+        if (dark)
+        {
+            generatorInfoBody.StateCommon.Back.Color1 = Color.FromArgb(113, 113, 113);
+            generatorInfoBody.StateCommon.Content.Color1 = Color.FromArgb(255, 255, 255);
+        }
+        else
+        {
+            generatorInfoBody.StateCommon.Back.Color1 = Color.FromArgb(227, 230, 232);
+            generatorInfoBody.StateCommon.Content.Color1 = Color.FromArgb(59, 59, 59);
+        }
+    }
+
+    /// <summary>
+    /// Loads an image embedded from the images folder. The image is copied
+    /// into a standalone bitmap so the resource stream lifetime can't break
+    /// later paints (GDI+ keeps Images tied to their source stream).
+    /// </summary>
+    private static Image LoadEmbeddedImage(string fileName)
+    {
+        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"MovieBarCodeGenerator.images.{fileName}");
+        using var source = Image.FromStream(stream);
+        return new Bitmap(source);
+    }
+
+    private void ApplyListHighlightColors(bool dark)
+    {
+        // The Office2010Silver palette leaves tracked/pressed checklist rows
+        // with an unreadable foreground, so pin those states to the standard
+        // Windows selection colors in light mode. Color.Empty reverts to the
+        // palette, which is already fine in dark mode.
+        Color back = dark ? Color.Empty : Color.FromArgb(0, 120, 215);
+        Color text = dark ? Color.Empty : Color.White;
+        var states = new[]
+        {
+            barGeneratorList.StateTracking,
+            barGeneratorList.StatePressed,
+            barGeneratorList.StateCheckedTracking,
+            barGeneratorList.StateCheckedPressed,
+        };
+        foreach (var state in states)
+        {
+            state.Item.Back.Color1 = back;
+            state.Item.Content.ShortText.Color1 = text;
+        }
     }
 
     private async void generateButton_Click(object sender, EventArgs e)
@@ -562,18 +759,7 @@ Bar width: {parameters.BarWidth}");
 
     private void AppendLog(string value)
     {
-        if (value == null)
-        {
-            return;
-        }
-
-        if (logTextBox.InvokeRequired)
-        {
-            logTextBox.Invoke(new Action(() => AppendLog(value)));
-            return;
-        }
-
-        logTextBox.AppendText($"{DateTime.Now:u} - " + value + Environment.NewLine);
+        _logForm.AppendLog(value);
     }
 
     private void TextBox_DragDrop(object sender, DragEventArgs e)
@@ -617,6 +803,7 @@ Bar width: {parameters.BarWidth}");
         if (barGeneratorList.SelectedItem is BarGeneratorViewModel generator)
         {
             generatorInfoBody.Text = $"{generator.DisplayName}\r\n{generator.Details}";
+            TextBoxAutoScroll.Update(generatorInfoBody);
         }
     }
 
@@ -644,6 +831,8 @@ public class BarGeneratorViewModel
 
     public bool Checked { get; set; }
     public string DisplayName => Generator.DisplayName;
+
+    public override string ToString() => DisplayName;
 
     public BarGeneratorViewModel(IBarGenerator generator, string details, bool initialCheckState)
     {

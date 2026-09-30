@@ -1,5 +1,7 @@
 # Movie BarCode Generator
 
+** _Coming soon ... updated documentation/screenshots/etc... original content follows_ **
+
 A user friendly tool to generate movie barcodes.
 
 More information here: [zerowidthjoiner.net/movie-barcode-generator](https://zerowidthjoiner.net/movie-barcode-generator)

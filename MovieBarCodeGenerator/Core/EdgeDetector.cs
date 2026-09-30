@@ -25,6 +25,8 @@ namespace MovieBarCodeGenerator.Core;
 /// <summary>
 /// Color-aware Sobel edge detection shared by the subject-color barcode mode
 /// and end-credits detection.
+/// 
+/// https://www.mathworks.com/matlabcentral/fileexchange/28114-fast-edges-of-a-color-image-actual-color-not-converting-to-grayscale
 /// </summary>
 public static class EdgeDetector
 {

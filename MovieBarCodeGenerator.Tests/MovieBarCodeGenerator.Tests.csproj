@@ -45,6 +45,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +57,7 @@
     <Compile Include="VerticalSweepBarGeneratorTests.cs" />
     <Compile Include="SubjectColorBarGeneratorTests.cs" />
     <Compile Include="CreditDetectorTests.cs" />
+    <Compile Include="TextBoxAutoScrollTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MovieBarCodeGenerator\MovieBarCodeGenerator.csproj">
