@@ -22,7 +22,7 @@ There are other new generators in there as well, and I still have ideas left to 
 
 ## Usage
 
-This is your standard Visual Studio project. You should be able to clone the repo, open it up in VS, and either run or build it as-is. You can get a listing and explanation of all command line parameters with `.\MovieBarCodeGenerator.exe --help` and both the CLI and GUI are capable of doing batch processing when provided with directories rather than specific file names. There are also tooltips in the GUI to provide more details.
+This is your standard Visual Studio project. You should be able to clone the repo, drop a copy of ffmpeg.exe in the Tools directory (you can get it from one of the releases), open it up in VS, and either run or build it as-is. You can get a listing and explanation of all command line parameters with `.\MovieBarCodeGenerator.exe --help` and both the CLI and GUI are capable of doing batch processing when provided with directories rather than specific file names. There are also tooltips in the GUI to provide more details.
 
 ## Examples
 
