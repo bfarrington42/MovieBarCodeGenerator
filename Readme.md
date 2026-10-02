@@ -18,7 +18,7 @@ The new dominant color generator paints bars the most dominant color found in ea
 
 The new subject color generator take it a bit further and makes use of blob extraction and morphological functions to detect the biggest object in frame and combines that with the dominant color methods to produce the best looking barcodes so far.
 
-There are other new generators in there as well, and I still have idea left to try.
+There are other new generators in there as well, and I still have ideas left to try.
 
 ## Usage
 
