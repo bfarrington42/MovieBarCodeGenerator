@@ -1,5 +1,4 @@
-//Copyright 2011-2018 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -17,6 +16,7 @@
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using MovieBarCodeGenerator.Core;
+using MovieBarCodeGenerator.Core.Generators;
 using MovieBarCodeGenerator.Properties;
 using PhotoSauce.MagicScaler;
 using System.Collections.Generic;
@@ -123,6 +123,7 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
 
         barGeneratorList.SelectedItem = _barGenerators.First(x => x.Checked); // So that the right panel displays something.
         barGeneratorList.SelectedItem = null; // Unselect so a click on the line will not uncheck the item.
+        UpdateWaveformControlsAvailability();
 
         AppendLog(Text);
 
@@ -144,11 +145,10 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
         _imageProcessor = new ImageStreamProcessor();
         _barCodeParametersValidator = new BarCodeParametersValidator();
 
-        useInputHeightForOutputCheckBox.Checked = true;
         generateButton.Text = GenerateButtonText;
 
         kryptonManager1.BaseFont = new Font("Segoe UI", 9f);
-        _progressTrackDarkColor = progressBar1.StateCommon.Back.Color2;
+        _progressTrackDarkColor = progressBar.StateCommon.Back.Color2;
         _bulbLit = LoadEmbeddedImage("light-mode.png");
         _bulbUnlit = LoadEmbeddedImage("dark-mode.png");
         _aboutImage = LoadEmbeddedImage("about.png");
@@ -193,7 +193,19 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
             DockLogWindow();
             if (!_logForm.Visible)
             {
-                _logForm.Show(this);
+                // Potential fix for a minor annoyance
+                //
+                // Occassionally the main window will disappear when the log window is opened.
+                // It reappears after closing the log window and remains working fine afterwards.
+                // Sounds like a race condition, so deferring the click here. So far I haven't
+                // seen it anymore, but it is rather random.
+                BeginInvoke(new Action(() =>
+                {
+                    if (!IsDisposed && logToggleButton.Checked && !_logForm.Visible)
+                    {
+                        _logForm.Show(this);
+                    }
+                }));
             }
         }
         else
@@ -238,7 +250,7 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
         ApplyListBaseColors(dark);
         ApplyInfoBoxColors(dark);
         _logForm.ApplyThemeColors(dark);
-        progressBar1.StateCommon.Back.Color2 = dark ? _progressTrackDarkColor : Color.White;
+        progressBar.StateCommon.Back.Color2 = dark ? _progressTrackDarkColor : Color.White;
         Settings.Default.Theme = dark ? "Dark" : "Light";
         Settings.Default.Save();
     }
@@ -268,8 +280,7 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
 
     /// <summary>
     /// Matches the generator description box to the surrounding panel colors
-    /// sampled from the Office 2010 themes: dark gray with white text in dark
-    /// mode, cool off-white with charcoal text in light mode.
+    /// sampled from the Office 2010 themes.
     /// </summary>
     private void ApplyInfoBoxColors(bool dark)
     {
@@ -327,12 +338,12 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
             _cancellationTokenSource.Dispose();
             _cancellationTokenSource = null;
             generateButton.Text = GenerateButtonText;
-            progressBar1.Value = progressBar1.Minimum;
+            progressBar.Value = progressBar.Minimum;
             TaskbarProgress.SetState(Handle, TaskbarProgress.TaskbarStates.NoProgress);
             return;
         }
 
-        // Validate parameters:
+        // Validate parameters
 
         bool overwriteGranted = false;
         bool PromptOverwriteExistingOutputFile(IReadOnlyCollection<string> paths)
@@ -374,7 +385,6 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
                 rawBarWidth: barWidthTextBox.Text,
                 rawImageWidth: imageWidthTextBox.Text,
                 rawImageHeight: imageHeightTextBox.Text,
-                useInputHeightForOutput: useInputHeightForOutputCheckBox.Checked,
                 shouldOverwriteOutputPaths: PromptOverwriteExistingOutputFile,
                 barGenerators: generators,
                 fileNamePostfix: postfixTextBox.Text);
@@ -399,7 +409,7 @@ Output width: {parameters.Width}
 Output height: {parameters.Height}
 Bar width: {parameters.BarWidth}");
 
-        // Register progression callback and ready cancellation source:
+        // Register progression callback and ready cancellation source
 
         var progress = new PercentageProgressHandler(percentage =>
         {
@@ -408,7 +418,7 @@ Bar width: {parameters.BarWidth}");
             {
                 if (_cancellationTokenSource != null)
                 {
-                    progressBar1.Value = progressBarValue;
+                    progressBar.Value = progressBarValue;
                     TaskbarProgress.SetValue(Handle, progressBarValue, 100);
                 }
             }));
@@ -417,13 +427,14 @@ Bar width: {parameters.BarWidth}");
         _cancellationTokenSource = new CancellationTokenSource();
         var cancellationLocalRef = _cancellationTokenSource;
 
-        // Actually create the barcode:
+        // Actually create the barcode
 
         IReadOnlyDictionary<IBarGenerator, Bitmap> result = null;
         try
         {
             generateButton.Text = CancelButtonText;
             generateButton.Enabled = false;
+
             // Prevent the user from cancelling for 1sec (it might not be obvious the generation has started)
             var dontCare = Task.Delay(1000).ContinueWith(t =>
             {
@@ -442,7 +453,10 @@ Bar width: {parameters.BarWidth}");
                     _cancellationTokenSource.Token,
                     progress,
                     AppendLog,
-                    excludeCredits: excludeCreditsCheckBox.Checked);
+                            excludeCredits: excludeCreditsCheckBox.Checked,
+                            overlayWaveform: overlayWaveformCheckBox.Checked,
+                            overlayStrength: waveformStrengthTrackBar.Value / 100.0,
+                    overlayWaveformColor: waveformColorButton.SelectedColor);
             }, _cancellationTokenSource.Token);
         }
         catch (OperationCanceledException)
@@ -472,7 +486,7 @@ Bar width: {parameters.BarWidth}");
             return;
         }
 
-        // Save the barcode:
+        // Save the barcode
 
         AppendLog("Saving the images...");
 
@@ -549,7 +563,6 @@ Bar width: {parameters.BarWidth}");
         var rawBarWidth = barWidthTextBox.Text;
         var rawImageWidth = imageWidthTextBox.Text;
         var rawImageHeight = imageHeightTextBox.Text;
-        var useInputHeightForOutput = useInputHeightForOutputCheckBox.Checked;
 
         _cancellationTokenSource = new CancellationTokenSource();
         var cancellationLocalRef = _cancellationTokenSource;
@@ -591,7 +604,6 @@ Bar width: {parameters.BarWidth}");
                         rawBarWidth: rawBarWidth,
                         rawImageWidth: rawImageWidth,
                         rawImageHeight: rawImageHeight,
-                        useInputHeightForOutput: useInputHeightForOutput,
                         shouldOverwriteOutputPaths: x => { fileOverwriteGranted = shouldOverwriteOutputPaths(x); return fileOverwriteGranted; },
                         barGenerators: generators,
                         fileNamePostfix: postfixTextBox.Text);
@@ -614,7 +626,7 @@ Bar width: {parameters.BarWidth}");
                     {
                         if (_cancellationTokenSource != null)
                         {
-                            progressBar1.Value = progressBarValue;
+                            progressBar.Value = progressBarValue;
                             TaskbarProgress.SetValue(Handle, progressBarValue, 100);
                         }
                     }));
@@ -623,7 +635,7 @@ Bar width: {parameters.BarWidth}");
                 IReadOnlyDictionary<IBarGenerator, Bitmap> result = null;
                 try
                 {
-                    progressBar1.Value = progressBar1.Minimum;
+                    progressBar.Value = progressBar.Minimum;
                     await Task.Run(() =>
                     {
                         result = _imageProcessor.CreateBarCodes(
@@ -632,7 +644,10 @@ Bar width: {parameters.BarWidth}");
                             _cancellationTokenSource.Token,
                             progress,
                             AppendLog,
-                            excludeCredits: excludeCreditsCheckBox.Checked);
+                    excludeCredits: excludeCreditsCheckBox.Checked,
+                    overlayWaveform: overlayWaveformCheckBox.Checked,
+                    overlayStrength: waveformStrengthTrackBar.Value / 100.0,
+                            overlayWaveformColor: waveformColorButton.SelectedColor);
                     }, _cancellationTokenSource.Token);
                 }
                 catch (OperationCanceledException)
@@ -687,7 +702,7 @@ Bar width: {parameters.BarWidth}");
             generateButton.Text = GenerateButtonText;
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = null;
-            progressBar1.Value = progressBar1.Minimum;
+            progressBar.Value = progressBar.Minimum;
             TaskbarProgress.SetState(Handle, TaskbarProgress.TaskbarStates.NoProgress);
         }
     }
@@ -706,11 +721,6 @@ Bar width: {parameters.BarWidth}");
         {
             outputPathTextBox.Text = _saveFileDialog.FileName;
         }
-    }
-
-    private void useInputHeightForOutputCheckBox_CheckedChanged(object sender, EventArgs e)
-    {
-        imageHeightTextBox.ReadOnly = useInputHeightForOutputCheckBox.Checked;
     }
 
     private void imageWidthTextBox_KeyUp(object sender, KeyEventArgs e)
@@ -796,6 +806,28 @@ Bar width: {parameters.BarWidth}");
         {
             generator.Checked = e.NewValue == CheckState.Checked;
         }
+
+        UpdateExcludeCreditsAvailability();
+        UpdateWaveformControlsAvailability();
+    }
+
+    private void UpdateExcludeCreditsAvailability()
+    {
+        // Credits exclusion trims both audio and video to the same prefix,
+        // so it stays available whenever any video-based (incl. hybrid)
+        // generator is selected. Only pure audio-only runs disable it.
+        var checkedGenerators = _barGenerators.Where(x => x.Checked).Select(x => x.Generator).ToArray();
+        bool anyChecked = checkedGenerators.Length > 0;
+        bool pureAudioOnly = anyChecked && checkedGenerators.All(g => g is IAudioBarGenerator);
+        excludeCreditsCheckBox.Enabled = !pureAudioOnly;
+        if (pureAudioOnly)
+        {
+            toolTip1.SetToolTip(excludeCreditsCheckBox, "End-credits exclusion is ignored for audio-only runs (no video to trim).");
+        }
+        else
+        {
+            toolTip1.SetToolTip(excludeCreditsCheckBox, "Detects dark end credits with a quick brightness scan and ends the barcode where they begin.");
+        }
     }
 
     private void barGeneratorList_SelectedIndexChanged(object sender, EventArgs e)
@@ -805,6 +837,33 @@ Bar width: {parameters.BarWidth}");
             generatorInfoBody.Text = $"{generator.DisplayName}\r\n{generator.Details}";
             TextBoxAutoScroll.Update(generatorInfoBody);
         }
+    }
+
+    /// <summary>
+    /// The track bar works in whole hundredths, 10 to 100, to match the overlay strength range of 0.1 to 1.
+    /// </summary>
+    private void waveformStrengthTrackBar_ValueChanged(object sender, EventArgs e)
+    {
+        double strength = waveformStrengthTrackBar.Value / 100.0;
+        waveformStrengthValueLabel.Values.Text = strength.ToString("0.00");
+    }
+
+    private void overlayWaveformCheckBox_CheckedChanged(object sender, EventArgs e)
+    {
+        UpdateWaveformControlsAvailability();
+    }
+
+    /// <summary>
+    /// The waveform controls only apply when the overlay option is checked.
+    /// </summary>
+    private void UpdateWaveformControlsAvailability()
+    {
+        bool overlaySelected = overlayWaveformCheckBox.Checked;
+        waveformStrengthLabel.Enabled = overlaySelected;
+        waveformStrengthValueLabel.Enabled = overlaySelected;
+        waveformStrengthTrackBar.Enabled = overlaySelected;
+        waveformColorLabel.Enabled = overlaySelected;
+        waveformColorButton.Enabled = overlaySelected;
     }
 
     private void toolTip1_Popup(object sender, PopupEventArgs e)

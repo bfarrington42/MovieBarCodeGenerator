@@ -1,5 +1,4 @@
-//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -39,8 +38,7 @@ internal static class DominantColor
     /// </param>
     /// <param name="minChannelBrightness">
     /// Pixels whose red, green, and blue channels are all at or below this
-    /// value are ignored (letterbox residue and edge-blur fringe). Zero
-    /// disables the gate.
+    /// value are ignored (letterbox residue and edge-blur fringe).
     /// </param>
     internal static Color ComputeDominantColor(Bitmap image, byte[] mask = null, int minChannelBrightness = 0)
     {

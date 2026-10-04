@@ -40,7 +40,7 @@ namespace MovieBarCodeGenerator.GUI
             this.browseInputPathButton = new Krypton.Toolkit.KryptonButton();
             this.generateButton = new Krypton.Toolkit.KryptonButton();
             this.label1 = new Krypton.Toolkit.KryptonLabel();
-            this.groupBox1 = new Krypton.Toolkit.KryptonGroupBox();
+            this.filesSection = new Krypton.Toolkit.KryptonGroupBox();
             this.label11 = new Krypton.Toolkit.KryptonLabel();
             this.extensionsTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.label10 = new Krypton.Toolkit.KryptonLabel();
@@ -50,32 +50,37 @@ namespace MovieBarCodeGenerator.GUI
             this.browseOutputPathButton = new Krypton.Toolkit.KryptonButton();
             this.aboutButton = new Krypton.Toolkit.KryptonButton();
             this.themeButton = new Krypton.Toolkit.KryptonCheckButton();
-            this.groupBox2 = new Krypton.Toolkit.KryptonGroupBox();
+            this.optionsSection = new Krypton.Toolkit.KryptonGroupBox();
             this.generatorInfoBody = new Krypton.Toolkit.KryptonTextBox();
-            this.label9 = new Krypton.Toolkit.KryptonLabel();
+            this.overlayWaveformCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.waveformStrengthLabel = new Krypton.Toolkit.KryptonLabel();
+            this.waveformStrengthValueLabel = new Krypton.Toolkit.KryptonLabel();
+            this.waveformStrengthTrackBar = new Krypton.Toolkit.KryptonTrackBar();
+            this.waveformColorLabel = new Krypton.Toolkit.KryptonLabel();
+            this.waveformColorButton = new Krypton.Toolkit.KryptonColorButton();
+            this.modeSelectionLabel = new Krypton.Toolkit.KryptonLabel();
             this.excludeCreditsCheckBox = new Krypton.Toolkit.KryptonCheckBox();
             this.barGeneratorList = new Krypton.Toolkit.KryptonCheckedListBox();
-            this.label7 = new Krypton.Toolkit.KryptonLabel();
-            this.label6 = new Krypton.Toolkit.KryptonLabel();
+            this.precendenceNote = new Krypton.Toolkit.KryptonLabel();
+            this.barWidthLabel = new Krypton.Toolkit.KryptonLabel();
             this.barWidthTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.label5 = new Krypton.Toolkit.KryptonLabel();
+            this.barCountLabel = new Krypton.Toolkit.KryptonLabel();
             this.barCountTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.useInputHeightForOutputCheckBox = new Krypton.Toolkit.KryptonCheckBox();
             this.label4 = new Krypton.Toolkit.KryptonLabel();
             this.imageHeightTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.label3 = new Krypton.Toolkit.KryptonLabel();
+            this.outputImageSizeLabel = new Krypton.Toolkit.KryptonLabel();
             this.imageWidthTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.progressBar1 = new Krypton.Toolkit.KryptonProgressBar();
+            this.progressBar = new Krypton.Toolkit.KryptonProgressBar();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.logToggleButton = new Krypton.Toolkit.KryptonCheckButton();
-            ((System.ComponentModel.ISupportInitialize)(this.groupBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.groupBox1.Panel)).BeginInit();
-            this.groupBox1.Panel.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.groupBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.groupBox2.Panel)).BeginInit();
-            this.groupBox2.Panel.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.filesSection)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.filesSection.Panel)).BeginInit();
+            this.filesSection.Panel.SuspendLayout();
+            this.filesSection.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.optionsSection)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.optionsSection.Panel)).BeginInit();
+            this.optionsSection.Panel.SuspendLayout();
+            this.optionsSection.SuspendLayout();
             this.SuspendLayout();
             // 
             // kryptonManager1
@@ -129,27 +134,27 @@ namespace MovieBarCodeGenerator.GUI
             this.label1.TabIndex = 3;
             this.label1.Values.Text = "Input video path:";
             // 
-            // groupBox1
+            // filesSection
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.filesSection.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Location = new System.Drawing.Point(12, 12);
+            this.filesSection.Location = new System.Drawing.Point(12, 12);
             // 
-            // groupBox1.Panel
+            // filesSection.Panel
             // 
-            this.groupBox1.Panel.Controls.Add(this.label11);
-            this.groupBox1.Panel.Controls.Add(this.extensionsTextBox);
-            this.groupBox1.Panel.Controls.Add(this.label10);
-            this.groupBox1.Panel.Controls.Add(this.postfixTextBox);
-            this.groupBox1.Panel.Controls.Add(this.label2);
-            this.groupBox1.Panel.Controls.Add(this.outputPathTextBox);
-            this.groupBox1.Panel.Controls.Add(this.browseOutputPathButton);
-            this.groupBox1.Panel.Controls.Add(this.label1);
-            this.groupBox1.Panel.Controls.Add(this.inputPathTextBox);
-            this.groupBox1.Panel.Controls.Add(this.browseInputPathButton);
-            this.groupBox1.Size = new System.Drawing.Size(619, 231);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.Values.Heading = "Files";
+            this.filesSection.Panel.Controls.Add(this.label11);
+            this.filesSection.Panel.Controls.Add(this.extensionsTextBox);
+            this.filesSection.Panel.Controls.Add(this.label10);
+            this.filesSection.Panel.Controls.Add(this.postfixTextBox);
+            this.filesSection.Panel.Controls.Add(this.label2);
+            this.filesSection.Panel.Controls.Add(this.outputPathTextBox);
+            this.filesSection.Panel.Controls.Add(this.browseOutputPathButton);
+            this.filesSection.Panel.Controls.Add(this.label1);
+            this.filesSection.Panel.Controls.Add(this.inputPathTextBox);
+            this.filesSection.Panel.Controls.Add(this.browseInputPathButton);
+            this.filesSection.Size = new System.Drawing.Size(619, 231);
+            this.filesSection.TabIndex = 0;
+            this.filesSection.Values.Heading = "Files";
             // 
             // label11
             // 
@@ -249,31 +254,36 @@ namespace MovieBarCodeGenerator.GUI
             this.themeButton.Values.Text = "";
             this.themeButton.CheckedChanged += new System.EventHandler(this.themeButton_CheckedChanged);
             // 
-            // groupBox2
+            // optionsSection
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.optionsSection.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Location = new System.Drawing.Point(12, 249);
+            this.optionsSection.Location = new System.Drawing.Point(12, 249);
             // 
-            // groupBox2.Panel
+            // optionsSection.Panel
             // 
-            this.groupBox2.Panel.Controls.Add(this.generatorInfoBody);
-            this.groupBox2.Panel.Controls.Add(this.label9);
-            this.groupBox2.Panel.Controls.Add(this.excludeCreditsCheckBox);
-            this.groupBox2.Panel.Controls.Add(this.barGeneratorList);
-            this.groupBox2.Panel.Controls.Add(this.label7);
-            this.groupBox2.Panel.Controls.Add(this.label6);
-            this.groupBox2.Panel.Controls.Add(this.barWidthTextBox);
-            this.groupBox2.Panel.Controls.Add(this.label5);
-            this.groupBox2.Panel.Controls.Add(this.barCountTextBox);
-            this.groupBox2.Panel.Controls.Add(this.useInputHeightForOutputCheckBox);
-            this.groupBox2.Panel.Controls.Add(this.label4);
-            this.groupBox2.Panel.Controls.Add(this.imageHeightTextBox);
-            this.groupBox2.Panel.Controls.Add(this.label3);
-            this.groupBox2.Panel.Controls.Add(this.imageWidthTextBox);
-            this.groupBox2.Size = new System.Drawing.Size(619, 365);
-            this.groupBox2.TabIndex = 5;
-            this.groupBox2.Values.Heading = "Barcode parameters";
+            this.optionsSection.Panel.Controls.Add(this.generatorInfoBody);
+            this.optionsSection.Panel.Controls.Add(this.overlayWaveformCheckBox);
+            this.optionsSection.Panel.Controls.Add(this.waveformStrengthLabel);
+            this.optionsSection.Panel.Controls.Add(this.waveformStrengthValueLabel);
+            this.optionsSection.Panel.Controls.Add(this.waveformStrengthTrackBar);
+            this.optionsSection.Panel.Controls.Add(this.waveformColorLabel);
+            this.optionsSection.Panel.Controls.Add(this.waveformColorButton);
+            this.optionsSection.Panel.Controls.Add(this.modeSelectionLabel);
+            this.optionsSection.Panel.Controls.Add(this.excludeCreditsCheckBox);
+            this.optionsSection.Panel.Controls.Add(this.barGeneratorList);
+            this.optionsSection.Panel.Controls.Add(this.precendenceNote);
+            this.optionsSection.Panel.Controls.Add(this.barWidthLabel);
+            this.optionsSection.Panel.Controls.Add(this.barWidthTextBox);
+            this.optionsSection.Panel.Controls.Add(this.barCountLabel);
+            this.optionsSection.Panel.Controls.Add(this.barCountTextBox);
+            this.optionsSection.Panel.Controls.Add(this.label4);
+            this.optionsSection.Panel.Controls.Add(this.imageHeightTextBox);
+            this.optionsSection.Panel.Controls.Add(this.outputImageSizeLabel);
+            this.optionsSection.Panel.Controls.Add(this.imageWidthTextBox);
+            this.optionsSection.Size = new System.Drawing.Size(619, 365);
+            this.optionsSection.TabIndex = 5;
+            this.optionsSection.Values.Heading = "Barcode parameters";
             // 
             // generatorInfoBody
             // 
@@ -284,21 +294,95 @@ namespace MovieBarCodeGenerator.GUI
             this.generatorInfoBody.Multiline = true;
             this.generatorInfoBody.Name = "generatorInfoBody";
             this.generatorInfoBody.ReadOnly = true;
-            this.generatorInfoBody.Size = new System.Drawing.Size(324, 204);
+            this.generatorInfoBody.Size = new System.Drawing.Size(324, 113);
             this.generatorInfoBody.StateCommon.Border.Draw = Krypton.Toolkit.InheritBool.False;
             this.generatorInfoBody.TabIndex = 15;
             // 
-            // label9
+            // overlayWaveformCheckBox
             // 
-            this.label9.Location = new System.Drawing.Point(1, 109);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(233, 20);
-            this.label9.TabIndex = 20;
-            this.label9.Values.Text = "Generate the following barcode versions:";
+            this.overlayWaveformCheckBox.Location = new System.Drawing.Point(444, 41);
+            this.overlayWaveformCheckBox.Name = "overlayWaveformCheckBox";
+            this.overlayWaveformCheckBox.Size = new System.Drawing.Size(156, 20);
+            this.overlayWaveformCheckBox.TabIndex = 26;
+            this.toolTip1.SetToolTip(this.overlayWaveformCheckBox, "Blends the audio waveform into every selected barcode in HSV (needs both video an" +
+        "d audio). End-credits exclusion trims both streams.");
+            this.overlayWaveformCheckBox.Values.Text = "Overlay waveform (HSV)";
+            this.overlayWaveformCheckBox.CheckedChanged += new System.EventHandler(this.overlayWaveformCheckBox_CheckedChanged);
+            // 
+            // waveformStrengthLabel
+            // 
+            this.waveformStrengthLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.waveformStrengthLabel.Enabled = false;
+            this.waveformStrengthLabel.Location = new System.Drawing.Point(286, 246);
+            this.waveformStrengthLabel.Name = "waveformStrengthLabel";
+            this.waveformStrengthLabel.Size = new System.Drawing.Size(145, 20);
+            this.waveformStrengthLabel.TabIndex = 21;
+            this.waveformStrengthLabel.Values.Text = "Waveform HSV strength:";
+            // 
+            // waveformStrengthValueLabel
+            // 
+            this.waveformStrengthValueLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.waveformStrengthValueLabel.Enabled = false;
+            this.waveformStrengthValueLabel.Location = new System.Drawing.Point(437, 246);
+            this.waveformStrengthValueLabel.Name = "waveformStrengthValueLabel";
+            this.waveformStrengthValueLabel.Size = new System.Drawing.Size(33, 20);
+            this.waveformStrengthValueLabel.TabIndex = 22;
+            this.waveformStrengthValueLabel.Values.Text = "0.60";
+            // 
+            // waveformStrengthTrackBar
+            // 
+            this.waveformStrengthTrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.waveformStrengthTrackBar.AutoSize = false;
+            this.waveformStrengthTrackBar.Enabled = false;
+            this.waveformStrengthTrackBar.Location = new System.Drawing.Point(286, 266);
+            this.waveformStrengthTrackBar.Maximum = 100;
+            this.waveformStrengthTrackBar.Minimum = 10;
+            this.waveformStrengthTrackBar.Name = "waveformStrengthTrackBar";
+            this.waveformStrengthTrackBar.Size = new System.Drawing.Size(324, 24);
+            this.waveformStrengthTrackBar.TabIndex = 23;
+            this.waveformStrengthTrackBar.TickFrequency = 10;
+            this.waveformStrengthTrackBar.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.toolTip1.SetToolTip(this.waveformStrengthTrackBar, "Waveform overlay strength, 0.1 = subtle, 1 = full waveform value.");
+            this.waveformStrengthTrackBar.Value = 60;
+            this.waveformStrengthTrackBar.ValueChanged += new System.EventHandler(this.waveformStrengthTrackBar_ValueChanged);
+            // 
+            // waveformColorLabel
+            // 
+            this.waveformColorLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.waveformColorLabel.Enabled = false;
+            this.waveformColorLabel.Location = new System.Drawing.Point(286, 301);
+            this.waveformColorLabel.Name = "waveformColorLabel";
+            this.waveformColorLabel.Size = new System.Drawing.Size(100, 20);
+            this.waveformColorLabel.TabIndex = 24;
+            this.waveformColorLabel.Values.Text = "Waveform color:";
+            // 
+            // waveformColorButton
+            // 
+            this.waveformColorButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.waveformColorButton.DropDownOrientation = Krypton.Toolkit.VisualOrientation.Top;
+            this.waveformColorButton.Enabled = false;
+            this.waveformColorButton.Location = new System.Drawing.Point(392, 296);
+            this.waveformColorButton.Name = "waveformColorButton";
+            this.waveformColorButton.SelectedColor = System.Drawing.Color.White;
+            this.waveformColorButton.Size = new System.Drawing.Size(100, 25);
+            this.waveformColorButton.TabIndex = 25;
+            this.toolTip1.SetToolTip(this.waveformColorButton, "Waveform layer color. Its brightness sets the blended value: white or saturated c" +
+        "olors brighten fully, dark colors darken.");
+            this.waveformColorButton.Values.Text = "";
+            this.waveformColorButton.VisibleNoColor = false;
+            // 
+            // modeSelectionLabel
+            // 
+            this.modeSelectionLabel.Location = new System.Drawing.Point(1, 109);
+            this.modeSelectionLabel.Name = "modeSelectionLabel";
+            this.modeSelectionLabel.Size = new System.Drawing.Size(233, 20);
+            this.modeSelectionLabel.TabIndex = 20;
+            this.modeSelectionLabel.Values.Text = "Generate the following barcode versions:";
             // 
             // excludeCreditsCheckBox
             // 
-            this.excludeCreditsCheckBox.Location = new System.Drawing.Point(6, 85);
+            this.excludeCreditsCheckBox.Location = new System.Drawing.Point(444, 15);
             this.excludeCreditsCheckBox.Name = "excludeCreditsCheckBox";
             this.excludeCreditsCheckBox.Size = new System.Drawing.Size(129, 20);
             this.excludeCreditsCheckBox.TabIndex = 12;
@@ -316,21 +400,21 @@ namespace MovieBarCodeGenerator.GUI
             this.barGeneratorList.SelectedIndexChanged += new System.EventHandler(this.barGeneratorList_SelectedIndexChanged);
             this.barGeneratorList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.barGeneratorList_ItemCheck);
             // 
-            // label7
+            // precendenceNote
             // 
-            this.label7.Location = new System.Drawing.Point(190, 64);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(210, 20);
-            this.label7.TabIndex = 17;
-            this.label7.Values.Text = "Note: bar width will take precedence";
+            this.precendenceNote.Location = new System.Drawing.Point(190, 64);
+            this.precendenceNote.Name = "precendenceNote";
+            this.precendenceNote.Size = new System.Drawing.Size(210, 20);
+            this.precendenceNote.TabIndex = 17;
+            this.precendenceNote.Values.Text = "Note: bar width will take precedence";
             // 
-            // label6
+            // barWidthLabel
             // 
-            this.label6.Location = new System.Drawing.Point(258, 15);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(119, 20);
-            this.label6.TabIndex = 16;
-            this.label6.Values.Text = "Bar width (in pixels):";
+            this.barWidthLabel.Location = new System.Drawing.Point(258, 15);
+            this.barWidthLabel.Name = "barWidthLabel";
+            this.barWidthLabel.Size = new System.Drawing.Size(119, 20);
+            this.barWidthLabel.TabIndex = 16;
+            this.barWidthLabel.Values.Text = "Bar width (in pixels):";
             // 
             // barWidthTextBox
             // 
@@ -341,13 +425,13 @@ namespace MovieBarCodeGenerator.GUI
             this.barWidthTextBox.Text = "1";
             this.barWidthTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.barWidthTextBox_KeyUp);
             // 
-            // label5
+            // barCountLabel
             // 
-            this.label5.Location = new System.Drawing.Point(187, 15);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(65, 20);
-            this.label5.TabIndex = 14;
-            this.label5.Values.Text = "Bar count:";
+            this.barCountLabel.Location = new System.Drawing.Point(187, 15);
+            this.barCountLabel.Name = "barCountLabel";
+            this.barCountLabel.Size = new System.Drawing.Size(65, 20);
+            this.barCountLabel.TabIndex = 14;
+            this.barCountLabel.Values.Text = "Bar count:";
             // 
             // barCountTextBox
             // 
@@ -357,15 +441,6 @@ namespace MovieBarCodeGenerator.GUI
             this.barCountTextBox.TabIndex = 9;
             this.barCountTextBox.Text = "1000";
             this.barCountTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.barCountTextBox_KeyUp);
-            // 
-            // useInputHeightForOutputCheckBox
-            // 
-            this.useInputHeightForOutputCheckBox.Location = new System.Drawing.Point(6, 64);
-            this.useInputHeightForOutputCheckBox.Name = "useInputHeightForOutputCheckBox";
-            this.useInputHeightForOutputCheckBox.Size = new System.Drawing.Size(193, 20);
-            this.useInputHeightForOutputCheckBox.TabIndex = 8;
-            this.useInputHeightForOutputCheckBox.Values.Text = "Same height as the input video";
-            this.useInputHeightForOutputCheckBox.CheckedChanged += new System.EventHandler(this.useInputHeightForOutputCheckBox_CheckedChanged);
             // 
             // label4
             // 
@@ -381,14 +456,15 @@ namespace MovieBarCodeGenerator.GUI
             this.imageHeightTextBox.Name = "imageHeightTextBox";
             this.imageHeightTextBox.Size = new System.Drawing.Size(55, 23);
             this.imageHeightTextBox.TabIndex = 7;
+            this.imageHeightTextBox.Text = "256";
             // 
-            // label3
+            // outputImageSizeLabel
             // 
-            this.label3.Location = new System.Drawing.Point(3, 15);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(126, 20);
-            this.label3.TabIndex = 1;
-            this.label3.Values.Text = "Image size (in pixels):";
+            this.outputImageSizeLabel.Location = new System.Drawing.Point(3, 15);
+            this.outputImageSizeLabel.Name = "outputImageSizeLabel";
+            this.outputImageSizeLabel.Size = new System.Drawing.Size(126, 20);
+            this.outputImageSizeLabel.TabIndex = 1;
+            this.outputImageSizeLabel.Values.Text = "Image size (in pixels):";
             // 
             // imageWidthTextBox
             // 
@@ -399,20 +475,20 @@ namespace MovieBarCodeGenerator.GUI
             this.imageWidthTextBox.Text = "1000";
             this.imageWidthTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.imageWidthTextBox_KeyUp);
             // 
-            // progressBar1
+            // progressBar
             // 
-            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.Location = new System.Drawing.Point(72, 618);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(478, 25);
-            this.progressBar1.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(184)))), ((int)(((byte)(234)))), ((int)(((byte)(255)))));
-            this.progressBar1.StateCommon.Back.Color2 = System.Drawing.Color.Black;
-            this.progressBar1.Step = 1;
-            this.progressBar1.TabIndex = 6;
-            this.progressBar1.TextBackdropColor = System.Drawing.Color.Empty;
-            this.progressBar1.TextShadowColor = System.Drawing.Color.Empty;
-            this.progressBar1.Values.Text = "";
+            this.progressBar.Location = new System.Drawing.Point(72, 618);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(478, 25);
+            this.progressBar.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(184)))), ((int)(((byte)(234)))), ((int)(((byte)(255)))));
+            this.progressBar.StateCommon.Back.Color2 = System.Drawing.Color.Black;
+            this.progressBar.Step = 1;
+            this.progressBar.TabIndex = 6;
+            this.progressBar.TextBackdropColor = System.Drawing.Color.Empty;
+            this.progressBar.TextShadowColor = System.Drawing.Color.Empty;
+            this.progressBar.Values.Text = "";
             // 
             // toolTip1
             // 
@@ -422,7 +498,7 @@ namespace MovieBarCodeGenerator.GUI
             this.toolTip1.Popup += new System.Windows.Forms.PopupEventHandler(this.toolTip1_Popup);
             // 
             // logToggleButton
-            //
+            // 
             this.logToggleButton.Location = new System.Drawing.Point(12, 618);
             this.logToggleButton.Name = "logToggleButton";
             this.logToggleButton.Size = new System.Drawing.Size(54, 25);
@@ -440,23 +516,23 @@ namespace MovieBarCodeGenerator.GUI
             this.Controls.Add(this.logToggleButton);
             this.Controls.Add(this.themeButton);
             this.Controls.Add(this.aboutButton);
-            this.Controls.Add(this.progressBar1);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.progressBar);
+            this.Controls.Add(this.optionsSection);
+            this.Controls.Add(this.filesSection);
             this.Controls.Add(this.generateButton);
             this.MinimumSize = new System.Drawing.Size(425, 466);
             this.Name = "MainForm";
             this.Text = "Movie BarCode Generator";
-            ((System.ComponentModel.ISupportInitialize)(this.groupBox1.Panel)).EndInit();
-            this.groupBox1.Panel.ResumeLayout(false);
-            this.groupBox1.Panel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.groupBox1)).EndInit();
-            this.groupBox1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.groupBox2.Panel)).EndInit();
-            this.groupBox2.Panel.ResumeLayout(false);
-            this.groupBox2.Panel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.groupBox2)).EndInit();
-            this.groupBox2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.filesSection.Panel)).EndInit();
+            this.filesSection.Panel.ResumeLayout(false);
+            this.filesSection.Panel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.filesSection)).EndInit();
+            this.filesSection.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.optionsSection.Panel)).EndInit();
+            this.optionsSection.Panel.ResumeLayout(false);
+            this.optionsSection.Panel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.optionsSection)).EndInit();
+            this.optionsSection.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -468,7 +544,7 @@ namespace MovieBarCodeGenerator.GUI
         private Krypton.Toolkit.KryptonButton browseInputPathButton;
         private Krypton.Toolkit.KryptonButton generateButton;
         private Krypton.Toolkit.KryptonLabel label1;
-        private Krypton.Toolkit.KryptonGroupBox groupBox1;
+        private Krypton.Toolkit.KryptonGroupBox filesSection;
         private Krypton.Toolkit.KryptonLabel label2;
         private Krypton.Toolkit.KryptonTextBox outputPathTextBox;
         private Krypton.Toolkit.KryptonButton browseOutputPathButton;
@@ -476,25 +552,30 @@ namespace MovieBarCodeGenerator.GUI
         private Krypton.Toolkit.KryptonTextBox postfixTextBox;
         private Krypton.Toolkit.KryptonLabel label11;
         private Krypton.Toolkit.KryptonTextBox extensionsTextBox;
-        private Krypton.Toolkit.KryptonGroupBox groupBox2;
-        private Krypton.Toolkit.KryptonLabel label6;
+        private Krypton.Toolkit.KryptonGroupBox optionsSection;
+        private Krypton.Toolkit.KryptonLabel barWidthLabel;
         private Krypton.Toolkit.KryptonTextBox barWidthTextBox;
-        private Krypton.Toolkit.KryptonLabel label5;
+        private Krypton.Toolkit.KryptonLabel barCountLabel;
         private Krypton.Toolkit.KryptonTextBox barCountTextBox;
-        private Krypton.Toolkit.KryptonCheckBox useInputHeightForOutputCheckBox;
         private Krypton.Toolkit.KryptonCheckBox excludeCreditsCheckBox;
         private Krypton.Toolkit.KryptonLabel label4;
         private Krypton.Toolkit.KryptonTextBox imageHeightTextBox;
-        private Krypton.Toolkit.KryptonLabel label3;
+        private Krypton.Toolkit.KryptonLabel outputImageSizeLabel;
         private Krypton.Toolkit.KryptonTextBox imageWidthTextBox;
-        private Krypton.Toolkit.KryptonProgressBar progressBar1;
+        private Krypton.Toolkit.KryptonProgressBar progressBar;
         private Krypton.Toolkit.KryptonButton aboutButton;
         private Krypton.Toolkit.KryptonCheckButton themeButton;
-        private Krypton.Toolkit.KryptonLabel label7;
+        private Krypton.Toolkit.KryptonLabel precendenceNote;
         private System.Windows.Forms.ToolTip toolTip1;
         private Krypton.Toolkit.KryptonCheckButton logToggleButton;
         private Krypton.Toolkit.KryptonCheckedListBox barGeneratorList;
-        private Krypton.Toolkit.KryptonLabel label9;
+        private Krypton.Toolkit.KryptonLabel modeSelectionLabel;
         private Krypton.Toolkit.KryptonTextBox generatorInfoBody;
+        private Krypton.Toolkit.KryptonCheckBox overlayWaveformCheckBox;
+        private Krypton.Toolkit.KryptonLabel waveformStrengthLabel;
+        private Krypton.Toolkit.KryptonLabel waveformStrengthValueLabel;
+        private Krypton.Toolkit.KryptonTrackBar waveformStrengthTrackBar;
+        private Krypton.Toolkit.KryptonLabel waveformColorLabel;
+        private Krypton.Toolkit.KryptonColorButton waveformColorButton;
     }
 }

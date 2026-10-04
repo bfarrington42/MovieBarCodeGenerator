@@ -1,5 +1,4 @@
-//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -21,10 +20,15 @@ using System.Drawing.Drawing2D;
 
 namespace MovieBarCodeGenerator.Core.Generators;
 
+/* TODO:
+ *      Improve this by adding a utility that finds the edge of the letterboxes, if they exist, rather than guessing.
+ *      This would allow us to not crop when it isn't necessary as well.
+ */
+
 /// <summary>
 /// Crops a fraction off the top and bottom of each frame (letterbox bars)
 /// before scaling it into a bar, so widescreen movies average the picture
-/// instead of the black bars. Default guestimate is 1/8th, adjust if needed.
+/// instead of the black bars. Default guestimate is 1/8th.
 /// </summary>
 public class LetterboxCropBarGenerator : IBarGenerator
 {
@@ -37,7 +41,7 @@ public class LetterboxCropBarGenerator : IBarGenerator
     {
         if (cropFraction < 0 || cropFraction >= 0.5)
         {
-            throw new ArgumentOutOfRangeException(nameof(cropFraction), "Crop fraction must be between 0 (inclusive) and 0.5 (exclusive).");
+            throw new ArgumentOutOfRangeException(nameof(cropFraction), "Crop fraction must be between and not equal to 0 and 0.5.");
         }
 
         _displayName = displayName;

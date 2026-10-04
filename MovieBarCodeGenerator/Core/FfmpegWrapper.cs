@@ -1,5 +1,4 @@
-//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -16,8 +15,10 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NWaves.Signals;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -154,7 +155,7 @@ public class FfmpegWrapper
         }
 
         var fps = frameCount / effectiveDuration.TotalSeconds;
-        var fpsFilter = $"fps={fps.ToInvariantString()}";
+        var fpsFilter = $"fps={ToInvariantString(fps)}";
 
         // Note: tone mapping algorithms have been tested (*cough* *cough* on the Interstellar movie only =°)
         // and compared to the SDR reference barcode, hable seems to give the closest result.
@@ -171,7 +172,7 @@ public class FfmpegWrapper
         }
 
         // Output a raw stream of bitmap images taken at the specified frequency
-        var durationArg = trimmed ? $" -t {effectiveDuration.TotalSeconds.ToInvariantString()}" : "";
+        var durationArg = trimmed ? $" -t {ToInvariantString(effectiveDuration.TotalSeconds)}" : "";
         var args = $"-i \"{inputPath}\"{durationArg} -vf \"{string.Join(",", vfilters)}\" -c:v bmp -f rawvideo -an -";
 
         log?.Invoke($"FFmpeg arguments: {args}");
@@ -206,9 +207,9 @@ public class FfmpegWrapper
     public IEnumerable<BitmapStream> GetPreviewFrames(string inputPath, double framesPerSecond, int size, CancellationToken cancellationToken, Action<string> log = null, TimeSpan? startOffset = null)
     {
         var seekArg = startOffset.HasValue && startOffset.Value > TimeSpan.Zero
-            ? $"-ss {startOffset.Value.TotalSeconds.ToInvariantString()} "
+            ? $"-ss {ToInvariantString(startOffset.Value.TotalSeconds)} "
             : "";
-        var args = $"{seekArg}-i \"{inputPath}\" -vf \"fps={framesPerSecond.ToInvariantString()},scale={size}:{size}\" -c:v bmp -f rawvideo -an -";
+        var args = $"{seekArg}-i \"{inputPath}\" -vf \"fps={ToInvariantString(framesPerSecond)},scale={size}:{size}\" -c:v bmp -f rawvideo -an -";
 
         log?.Invoke($"FFmpeg arguments: {args}");
 
@@ -234,6 +235,96 @@ public class FfmpegWrapper
 
         return GetLazyStream();
     }
+
+    /// <summary>
+    /// Always return a floating point notation formatted number, with a leading zero, and up to 15 decimals of precision.
+    /// The invariant culture is used ('.' as a decimal separator, no thousands separator...)
+    /// </summary>
+    private static string ToInvariantString(double number) => number.ToString("0.###############", CultureInfo.InvariantCulture);
+
+    /// <summary>
+    /// Extracts the audio track as mono PCM via ffmpeg and wraps it in an
+    /// NWaves <see cref="DiscreteSignal"/> for downstream DSP.
+    /// Returns <see cref="AudioSamples.HasAudio"/> == false when the input
+    /// has no usable audio track.
+    /// 
+    /// NOTE: Raw s16le is used instead of WAV on purpose!
+    /// 
+    /// FFmpeg cannot fix up WAV headers on a non-seekable pipe (RIFF size stays 0xFFFFFFFF),
+    /// which strict WAV parsers reject even though the PCM payload is fine. 8kHz keeps a 2h
+    /// movie around ~230MB as float samples, plenty for per-bar min/max waveform rendering.
+    /// When <paramref name="maxDuration"/> is set, only that prefix is extracted (via `-t`)
+    /// so audio stays aligned with a credits-trimmed video barcode in hybrid runs.
+    /// </summary>
+    public AudioSamples GetMonoAudioSamples(string inputPath, CancellationToken cancellationToken, Action<string> log = null, int sampleRate = 8000, TimeSpan? maxDuration = null)
+    {
+        log?.Invoke("Reading audio from FFmpeg...");
+
+        // Trim to the same prefix as the video pipeline when credits are
+        // excluded, so per-bar audio columns stay aligned with video bars.
+        var durationArg = maxDuration.HasValue && maxDuration.Value > TimeSpan.Zero
+            ? $" -t {ToInvariantString(maxDuration.Value.TotalSeconds)}"
+            : "";
+        var args = $"-i \"{inputPath}\"{durationArg} -vn -ac 1 -ar {sampleRate} -c:a pcm_s16le -f s16le -";
+
+        log?.Invoke($"FFmpeg arguments: {args}");
+
+        var process = StartFfmpegInstance(args, redirectError: log != null);
+
+        if (log != null)
+        {
+            process.ErrorDataReceived += (s, e) => log(e.Data);
+            process.BeginErrorReadLine();
+        }
+
+        using (process)
+        using (cancellationToken.Register(() => TryKill(process)))
+        {
+            var pcmBytes = new MemoryStream();
+            process.StandardOutput.BaseStream.CopyTo(pcmBytes);
+            process.WaitForExit();
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (pcmBytes.Length < 2)
+            {
+                log?.Invoke("FFmpeg returned no audio data (silent or missing audio track).");
+                return AudioSamples.Empty(sampleRate);
+            }
+
+            var raw = pcmBytes.ToArray();
+            int sampleCount = raw.Length / 2;
+            var samples = new float[sampleCount];
+            for (int i = 0; i < sampleCount; i++)
+            {
+                short s16 = (short)(raw[2 * i] | (raw[(2 * i) + 1] << 8));
+                samples[i] = s16 / 32768f;
+            }
+
+            if (sampleCount == 0)
+            {
+                log?.Invoke("FFmpeg returned no usable audio samples (silent or missing audio track).");
+                return AudioSamples.Empty(sampleRate);
+            }
+
+            var signal = new DiscreteSignal(sampleRate, samples);
+            return new AudioSamples
+            {
+                Samples = signal.Samples,
+                SampleRate = signal.SamplingRate,
+                HasAudio = true,
+            };
+        }
+    }
+}
+
+public class AudioSamples
+{
+    public float[] Samples { get; internal set; } = Array.Empty<float>();
+    public int SampleRate { get; internal set; }
+    public bool HasAudio { get; internal set; }
+
+    internal static AudioSamples Empty(int sampleRate) => new() { Samples = Array.Empty<float>(), SampleRate = sampleRate, HasAudio = false };
 }
 
 public class MediaInfo

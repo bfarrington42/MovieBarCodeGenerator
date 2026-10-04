@@ -1,5 +1,4 @@
-﻿//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+﻿//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -16,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using MovieBarCodeGenerator.Core.Generators;
 using System.Collections.Generic;
 
 namespace MovieBarCodeGenerator.Core;
@@ -25,6 +25,6 @@ public class BarCodeParameters
     public string InputPath { get; set; }
     public IDictionary<IBarGenerator, string> GeneratorOutputPaths { get; set; }
     public int Width { get; set; } = 1000;
-    public int? Height { get; set; } = null;
+    public int Height { get; set; } = 256;
     public int BarWidth { get; set; } = 1;
 }

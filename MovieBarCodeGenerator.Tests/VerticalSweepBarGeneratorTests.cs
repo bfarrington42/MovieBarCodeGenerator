@@ -1,4 +1,5 @@
 using MovieBarCodeGenerator.Core;
+using MovieBarCodeGenerator.Core.Generators;
 using NUnit.Framework;
 using System.Drawing;
 using System.Drawing.Imaging;

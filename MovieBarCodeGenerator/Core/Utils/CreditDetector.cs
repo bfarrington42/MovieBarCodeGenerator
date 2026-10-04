@@ -1,5 +1,4 @@
-//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -25,11 +24,13 @@ using System.Threading;
 namespace MovieBarCodeGenerator.Core.Utils;
 
 /// <summary>
-/// Detects end credits by scanning the last minutes of the video at 1 fps.
+/// Detects end credits by scanning the last minutes of the video.
 /// Credit rolls are dark background with bright text, so a credit frame has
-/// low mean brightness but high edge density: that combination separates real
-/// credits both from bright content and from smooth dark scenes (fades, night
-/// shots). Returns the content duration, or null when no plausible credits
+/// low mean brightness but high edge density, typically. That combination
+/// separates real credits both from bright content and from smooth dark scenes (fades, night
+/// shots, etc).
+/// 
+/// Returns the content duration, or null when no plausible credits
 /// boundary is found (and everything is kept).
 /// </summary>
 public static class CreditDetector
@@ -112,12 +113,12 @@ public static class CreditDetector
     }
 
     /// <summary>
-    /// Finds the first frame of the trailing credit roll: a sustained run of
-    /// dim but edge-dense frames (credit text) reaching near the end of the
-    /// sample. Short dark gaps inside the run (black pages between credits)
-    /// and any trailing non-credit frames (logos after the credits) are
-    /// tolerated. Returns the cutoff frame index, or -1 when there is no
-    /// plausible credit roll.
+    /// Finds the first frame of the trailing credit roll. We're looking for a
+    /// sustained run near the end of dark background + lots of edges here.
+    /// Short dark gaps inside the run (black pages between credits) and any
+    /// trailing non-credit frames (logos after the credits) are tolerated.
+    /// Returns the cutoff frame index, or -1 when there is no plausible credit
+    /// roll, and obviously fails to find credits if they are not dark.
     /// </summary>
     public static int FindCreditsStart(IReadOnlyList<double> brightness, IReadOnlyList<double> edgeDensity)
     {

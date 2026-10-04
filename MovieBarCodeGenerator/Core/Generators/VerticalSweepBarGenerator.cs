@@ -1,5 +1,4 @@
-//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -25,6 +24,7 @@ namespace MovieBarCodeGenerator.Core.Generators;
 /// Samples a single vertical column of each frame and stretches it into a bar.
 /// The sampled column sweeps left to right across the frame width as frames
 /// progress, wrapping back to the left edge when it reaches the right edge.
+/// Like a super fast forward.
 /// </summary>
 public class VerticalSweepBarGenerator : IFrameAwareBarGenerator
 {

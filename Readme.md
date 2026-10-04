@@ -50,4 +50,5 @@ The following projects were used and are subject to their own licensing/restrict
 
 - [PhotoSauce MagicScaler](https://github.com/saucecontrol/PhotoSauce) <sub>_[MIT](https://github.com/saucecontrol/PhotoSauce?tab=MIT-1-ov-file)_</sub>
 - [Krypton Standard Toolkit](https://github.com/Krypton-Suite/Standard-Toolkit) <sub>_[BSD 3-Clause](https://github.com/Krypton-Suite/Standard-Toolkit?tab=BSD-3-Clause-1-ov-file)_</sub>
+- [NWaves](https://github.com/ar1st0crat/NWaves) <sub>_[MIT](https://github.com/ar1st0crat/NWaves?tab=MIT-1-ov-file)_</sub>
 - [FFmpeg](https://ffmpeg.org/) <sub>_[LGPL-2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)_</sub>

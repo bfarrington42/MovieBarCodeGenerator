@@ -1,4 +1,5 @@
 ﻿using MovieBarCodeGenerator.Core;
+using MovieBarCodeGenerator.Core.Generators;
 using NUnit.Framework;
 using PhotoSauce.MagicScaler;
 using System.Collections.Generic;

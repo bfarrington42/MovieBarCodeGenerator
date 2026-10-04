@@ -3,9 +3,11 @@ using System.Windows.Forms;
 
 namespace MovieBarCodeGenerator.GUI;
 
+// TODO: Get this to re-dock to the main window after the user moves it
+
 /// <summary>
 /// Floating log window owned by the main form. Closing it hides it instead
-/// so it can be reopened from the main form; logging stays thread-safe.
+/// so it can be reopened from the main form. Logging stays thread-safe.
 /// </summary>
 partial class LogForm : Krypton.Toolkit.KryptonForm
 {
@@ -38,9 +40,7 @@ partial class LogForm : Krypton.Toolkit.KryptonForm
     }
 
     /// <summary>
-    /// Matches the log box to the same panel colors as the generator
-    /// description box: dark gray with white text in dark mode, cool
-    /// off-white with charcoal text in light mode.
+    /// Matches the log box to the dark/light mode
     /// </summary>
     public void ApplyThemeColors(bool dark)
     {
@@ -56,7 +56,8 @@ partial class LogForm : Krypton.Toolkit.KryptonForm
         }
     }
 
-    public void AppendLog(string value)    {
+    public void AppendLog(string value)
+    {
         if (value == null)
         {
             return;
@@ -97,5 +98,17 @@ partial class LogForm : Krypton.Toolkit.KryptonForm
         {
             base.OnFormClosing(e);
         }
+    }
+
+    private void InitializeComponent()
+    {
+        this.SuspendLayout();
+        // 
+        // LogForm
+        // 
+        this.ClientSize = new System.Drawing.Size(284, 261);
+        this.Name = "LogForm";
+        this.ResumeLayout(false);
+
     }
 }

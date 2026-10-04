@@ -1,7 +1,9 @@
 ﻿using FakeItEasy;
 using MovieBarCodeGenerator.CLI;
+using MovieBarCodeGenerator.Core;
 using NUnit.Framework;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 
@@ -154,5 +156,53 @@ public class CLITests
     {
         var output = CLIUtils.GetExpandedAndValidatedFilePaths(_fakeFileSystemService, input, recursive).ToList();
         CollectionAssert.AreEquivalent(expectedOutput, output);
+    }
+
+    [TestCase(null, true, 0.6)]
+    [TestCase("", true, 0.6)]
+    [TestCase("0.7", true, 0.7)]
+    [TestCase("0", true, 0.0)]
+    [TestCase("1", true, 1.0)]
+    [TestCase("1.5", false, 0.0)]
+    [TestCase("-0.1", false, 0.0)]
+    [TestCase("abc", false, 0.0)]
+    [TestCase("0,7", false, 0.0)]
+    [Test]
+    public void TryParseWaveformStrength_Returns_Expected_Result(string input, bool expected, double expectedStrength)
+    {
+        bool actual = CLIBatchProcessor.TryParseWaveformStrength(input, out double strength);
+
+        Assert.AreEqual(expected, actual);
+        Assert.AreEqual(expectedStrength, strength);
+        if (input == null)
+        {
+            Assert.AreEqual(ImageStreamProcessor.DefaultOverlayStrength, strength);
+        }
+    }
+
+    [TestCase(null, true, 255, 255, 255, 255)]
+    [TestCase("", true, 255, 255, 255, 255)]
+    [TestCase("FF0000", true, 255, 255, 0, 0)]
+    [TestCase("#00ff00", true, 255, 0, 255, 0)]
+    [TestCase("0000FF", true, 255, 0, 0, 255)]
+    [TestCase("FFFFFFFF", true, 255, 255, 255, 255)]
+    [TestCase("80000000", true, 128, 0, 0, 0)]
+    [TestCase("FFF", false, 0, 0, 0, 0)]
+    [TestCase("GGGGGG", false, 0, 0, 0, 0)]
+    [TestCase("#", false, 0, 0, 0, 0)]
+    [TestCase("FF0000FF00", false, 0, 0, 0, 0)]
+    [Test]
+    public void TryParseWaveformColor_Returns_Expected_Result(string input, bool expected, int a, int r, int g, int b)
+    {
+        bool actual = CLIBatchProcessor.TryParseWaveformColor(input, out Color color);
+
+        Assert.AreEqual(expected, actual);
+        if (expected)
+        {
+            Assert.AreEqual(a, color.A);
+            Assert.AreEqual(r, color.R);
+            Assert.AreEqual(g, color.G);
+            Assert.AreEqual(b, color.B);
+        }
     }
 }

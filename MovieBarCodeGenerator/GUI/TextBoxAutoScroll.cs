@@ -5,8 +5,8 @@ using System.Windows.Forms;
 namespace MovieBarCodeGenerator.GUI;
 
 /// <summary>
-/// Shows a text box's scrollbars only while its content actually overflows,
-/// since WinForms has no built-in automatic mode. Only switches the
+/// Shows a text box's scrollbars only when its content actually overflows,
+/// since WinForms has no built-in automatic mode. Only switches on the
 /// ScrollBars property when the needed state changes, because switching
 /// recreates the control handle.
 /// </summary>

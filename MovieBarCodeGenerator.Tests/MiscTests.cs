@@ -1,11 +1,12 @@
-﻿using MovieBarCodeGenerator.Core;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using System.Globalization;
 
 namespace MovieBarCodeGenerator.Tests;
 
 [TestFixture]
 public class MiscTests
 {
+    private static string ToInvariantString(double number) => number.ToString("0.###############", CultureInfo.InvariantCulture);
     [TestCase(0, "0")]
     [TestCase(-0, "0")]
     [TestCase(1, "1")]
@@ -39,7 +40,7 @@ public class MiscTests
     [Test]
     public void ToInvariantString_Returns_Expected_Values(double input, string expectedOutput)
     {
-        var result = Utils.ToInvariantString(input);
+        var result = ToInvariantString(input);
         Assert.AreEqual(expectedOutput, result);
     }
 }

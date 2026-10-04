@@ -1,5 +1,4 @@
-//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -21,9 +20,8 @@ using System.Collections.Generic;
 namespace MovieBarCodeGenerator.Core;
 
 /// <summary>
-/// Video file extensions recognized when an input directory is expanded
-/// (CLI batch mode and GUI batch mode). Extensions include the leading dot
-/// and comparison is case-insensitive.
+/// Video file extensions recognized when an input directory is expanded.
+/// Extensions include the leading dot and comparison is case-insensitive.
 /// </summary>
 public static class SupportedVideoExtensions
 {

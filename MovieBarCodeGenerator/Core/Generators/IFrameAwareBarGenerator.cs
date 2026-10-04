@@ -1,5 +1,4 @@
-//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -20,12 +19,13 @@ using System.Drawing;
 
 namespace MovieBarCodeGenerator.Core.Generators;
 
+// TODO: Maybe add overloaded methods here for passing in prior frame rather than frameIndex/frameCount
+
 /// <summary>
 /// Optional extension for bar generators whose output depends on which frame
 /// of the sequence is being processed (e.g. sweeping a sampling position
 /// across frames). The pipeline detects this interface and supplies the
-/// zero-based frame index; generators that do not implement it keep working
-/// exactly as before.
+/// zero-based frame index.
 /// </summary>
 public interface IFrameAwareBarGenerator : IBarGenerator
 {

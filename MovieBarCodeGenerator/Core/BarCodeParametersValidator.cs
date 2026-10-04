@@ -1,5 +1,4 @@
-﻿//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+﻿//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -16,6 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using MovieBarCodeGenerator.Core.Generators;
 using System.Collections.Generic;
 
 namespace MovieBarCodeGenerator.Core;
@@ -28,7 +28,6 @@ public class BarCodeParametersValidator
         string rawBarWidth,
         string rawImageWidth,
         string rawImageHeight,
-        bool useInputHeightForOutput,
         Func<IReadOnlyCollection<string>, bool> shouldOverwriteOutputPaths,
         IEnumerable<IBarGenerator> barGenerators,
         string fileNamePostfix = null)
@@ -123,17 +122,14 @@ public class BarCodeParametersValidator
             throw new ParameterValidationException("Invalid output width.");
         }
 
-        int? imageHeight = null;
-        if (!useInputHeightForOutput)
+        int imageHeight;
+        if (int.TryParse(rawImageHeight, out var nonNullableImageHeight) && nonNullableImageHeight > 0)
         {
-            if (int.TryParse(rawImageHeight, out var nonNullableImageHeight) && nonNullableImageHeight > 0)
-            {
-                imageHeight = nonNullableImageHeight;
-            }
-            else
-            {
-                throw new ParameterValidationException("Invalid output height.");
-            }
+            imageHeight = nonNullableImageHeight;
+        }
+        else
+        {
+            throw new ParameterValidationException("Invalid output height.");
         }
 
         return new BarCodeParameters

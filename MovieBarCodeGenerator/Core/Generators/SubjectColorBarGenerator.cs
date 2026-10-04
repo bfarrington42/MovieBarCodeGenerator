@@ -1,5 +1,4 @@
-//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -54,7 +53,8 @@ public class SubjectColorBarGenerator : IBarGenerator
     {
         using var sourceImage = Image.FromStream(source, true, false);
 
-        // apply cropping to get rid of any potential letterboxing as that will throw the whole thing off
+        // Apply cropping to get rid of any potential letterboxing as that will throw the whole thing off
+        // See additional notes in LetterboxCropBarGenerator regarding doing this
         int cropY = (int)(sourceImage.Height * CropFraction);
         int cropHeight = Math.Max(1, sourceImage.Height - (2 * cropY));
         using var cropped = new Bitmap(sourceImage.Width, cropHeight);
@@ -68,7 +68,7 @@ public class SubjectColorBarGenerator : IBarGenerator
                 GraphicsUnit.Pixel);
         }
 
-        // create a thumbnail to work with since it'll be faster
+        // Create a thumbnail to work with since it'll be faster
         using var thumbnail = new GdiBarGenerator().GetResizedImage(cropped, SampleSize, SampleSize);
 
         // locate the subject
@@ -128,7 +128,7 @@ public class SubjectColorBarGenerator : IBarGenerator
     }
 
     /// <summary>
-    /// Returns a mask of the largest 8-connected component of non-zero pixels,
+    /// Returns a mask of the largest fully connected component of non-zero pixels,
     /// or null when the largest component is below the minimum blob size. We
     /// don't want to focus on any tiny objects just because it's the only one.
     /// </summary>
@@ -207,7 +207,7 @@ public class SubjectColorBarGenerator : IBarGenerator
     }
 
     /// <summary>
-    /// See https://www.mathworks.com/help/images/morphological-dilation-and-erosion.html for explanation
+    /// See https://www.mathworks.com/help/images/morphological-dilation-and-erosion.html
     /// </summary>
     private static byte[] Dilate(byte[] binary, int width, int height)
     {
@@ -239,7 +239,7 @@ public class SubjectColorBarGenerator : IBarGenerator
     }
 
     /// <summary>
-    /// See https://www.mathworks.com/help/images/morphological-dilation-and-erosion.html for explanation
+    /// See https://www.mathworks.com/help/images/morphological-dilation-and-erosion.html
     /// </summary>
     private static byte[] Erode(byte[] binary, int width, int height)
     {
@@ -273,7 +273,7 @@ public class SubjectColorBarGenerator : IBarGenerator
     /// <summary>
     /// Flood fills the background (non-edge pixels reachable from the image
     /// borders, 4-connected so diagonal edge gaps do not leak). Everything
-    /// else is foreground: edges plus enclosed interiors.
+    /// else is foreground.
     /// </summary>
     private static bool[] FloodBackground(byte[] edges, int width, int height)
     {

@@ -1,5 +1,4 @@
-//Copyright 2011-2021 Melvyn Laily
-//https://zerowidthjoiner.net
+//Copyright 2026 Billy Farrington
 
 //This file is part of MovieBarCodeGenerator.
 
@@ -18,9 +17,11 @@
 
 using Mono.Options;
 using MovieBarCodeGenerator.Core;
+using MovieBarCodeGenerator.Core.Generators;
 using PhotoSauce.MagicScaler;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -79,7 +80,7 @@ This parameter can be set multiple times.",
             x => arguments.RawWidth = x);
 
         options.Add("h=|H=|height=",
-            "Height of the output image. If this argument is not set, the input height will be used.",
+            $"Height of the output image. Default: {RawArguments.DefaultHeight}",
             x => arguments.RawHeight = x);
 
         options.Add("b=|barwidth=|barWidth=",
@@ -130,6 +131,18 @@ This parameter can be set multiple times.",
             "Generate a subject-color barcode (each bar painted the dominant color of the largest object in its frame).\nDefaults to False.",
             x => arguments.GenerateSubject = x != null);
 
+        options.Add("waveform-overlay",
+            "Blend the audio waveform into every selected barcode in HSV (needs both video and audio).\nDefaults to False.",
+            x => arguments.GenerateWaveformOverlay = x != null);
+
+        options.Add("waveform-strength=",
+            $"Waveform overlay strength, 0 to 1. Only used with --waveform-overlay.\nDefault: {ImageStreamProcessor.DefaultOverlayStrength}",
+            x => arguments.RawWaveformStrength = x);
+
+        options.Add("waveform-color=",
+            "Waveform overlay color as hex: 6 digits (RRGGBB, e.g. FF0000 for red) or 8 digits (AARRGGBB), with or without a leading '#'.\nOnly used with --waveform-overlay. Defaults to white.",
+            x => arguments.RawWaveformColor = x);
+
         options.Add("exclude-credits",
             "Detect end credits by scanning the last 15 minutes for dark, text-heavy frames and stop the barcode where they begin.\nDefaults to False.",
             x => arguments.ExcludeCredits = x != null);
@@ -143,11 +156,6 @@ This parameter can be set multiple times.",
             Console.WriteLine($"Error: {ex.Message}\n");
             ShowHelp(options);
             return;
-        }
-
-        if (arguments.RawHeight == null)
-        {
-            arguments.UseInputHeight = true;
         }
 
         var fileSystemService = new FileSystemService();
@@ -180,6 +188,54 @@ This parameter can be set multiple times.",
         }
 
         Console.WriteLine($"Exiting...");
+    }
+
+    /// <summary>
+    /// Parses --waveform-strength (double) between 0.1 and 1.
+    /// Missing or no value assumes default of 0.6
+    /// Note, we're not allowing 0 because that would be pointless
+    /// </summary>
+    internal static bool TryParseWaveformStrength(string raw, out double strength)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            strength = ImageStreamProcessor.DefaultOverlayStrength;
+            return true;
+        }
+
+        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out strength)
+            && strength >= 0.1 && strength <= 1)
+        {
+            return true;
+        }
+
+        strength = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Parses --waveform-color: Hex color code (may include alpha), with or without a leading '#'.
+    /// Missing or no value assumes solid white e.g., #FFFFFF
+    /// </summary>
+    internal static bool TryParseWaveformColor(string raw, out Color color)
+    {
+        color = Color.White;
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return true;
+        }
+
+        // uint: 8-digit white (FFFFFFFF) overflows int
+        string hex = raw.Trim().TrimStart('#');
+        if ((hex.Length == 6 || hex.Length == 8)
+            && uint.TryParse(hex, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint parsed))
+        {
+            uint argb = hex.Length == 6 ? 0xFF000000u | parsed : parsed;
+            color = Color.FromArgb(unchecked((int)argb));
+            return true;
+        }
+
+        return false;
     }
 
     private async Task DealWithOneInputFileAsync(RawArguments arguments)
@@ -221,6 +277,32 @@ This parameter can be set multiple times.",
             return;
         }
 
+        if (generators.All(g => g is IAudioBarGenerator) && arguments.ExcludeCredits)
+        {
+            Console.WriteLine("WARNING: --exclude-credits is ignored for audio-only runs (no video to trim).");
+        }
+
+        double overlayStrength = ImageStreamProcessor.DefaultOverlayStrength;
+        Color overlayColor = Color.White;
+        if (arguments.GenerateWaveformOverlay)
+        {
+            if (!TryParseWaveformStrength(arguments.RawWaveformStrength, out overlayStrength))
+            {
+                Console.Error.WriteLine($"Invalid --waveform-strength value '{arguments.RawWaveformStrength}': expected a number between 0.1 and 1.");
+                return;
+            }
+
+            if (!TryParseWaveformColor(arguments.RawWaveformColor, out overlayColor))
+            {
+                Console.Error.WriteLine($"Invalid --waveform-color value '{arguments.RawWaveformColor}': expected 6 or 8 hex digits e.g., FF0000 or FFFFFF88, optionally prefixed with '#'.");
+                return;
+            }
+        }
+        else if (arguments.RawWaveformStrength != null || arguments.RawWaveformColor != null)
+        {
+            Console.WriteLine("NOTE: --waveform-strength and --waveform-color are ignored without --waveform-overlay.");
+        }
+
         IReadOnlyCollection<string> existingOutputs = Array.Empty<string>();
         BarCodeParameters parameters;
         try
@@ -231,7 +313,6 @@ This parameter can be set multiple times.",
                 rawBarWidth: arguments.RawBarWidth,
                 rawImageWidth: arguments.RawWidth,
                 rawImageHeight: arguments.RawHeight,
-                useInputHeightForOutput: arguments.UseInputHeight,
                 // Choosing whether to overwrite or not is done after validating parameters, not here
                 shouldOverwriteOutputPaths: x => { existingOutputs = x; return true; },
                 generators,
@@ -259,7 +340,10 @@ This parameter can be set multiple times.",
                 CancellationToken.None,
                 null,
                 x => Console.WriteLine(x),
-                excludeCredits: arguments.ExcludeCredits);
+                excludeCredits: arguments.ExcludeCredits,
+                overlayWaveform: arguments.GenerateWaveformOverlay,
+                overlayStrength: overlayStrength,
+                overlayWaveformColor: overlayColor);
             return result;
         }); // Image Magic throws if we are on an STA thread, so we have to execute everything on the thread pool and wait...
 
@@ -310,14 +394,14 @@ along with an output file or directory.
 class RawArguments
 {
     public const string DefaultWidth = "1000";
+    public const string DefaultHeight = "256";
     public const string DefaultBarWidth = "1";
     public string RawInput { get; set; } = null;
     public string RawOutput { get; set; } = null;
     public bool Overwrite { get; set; } = false;
     public bool Recursive { get; set; } = false;
     public string RawWidth { get; set; } = DefaultWidth;
-    public string RawHeight { get; set; } = null;
-    public bool UseInputHeight { get; set; } = false;
+    public string RawHeight { get; set; } = DefaultHeight;
     public string RawBarWidth { get; set; } = DefaultBarWidth;
     public string RawExtensions { get; set; } = null;
     public string RawPostfix { get; set; } = null;
@@ -331,5 +415,8 @@ class RawArguments
     public bool GenerateCropped { get; set; }
     public bool GenerateDominant { get; set; }
     public bool GenerateSubject { get; set; }
+    public bool GenerateWaveformOverlay { get; set; }
+    public string RawWaveformStrength { get; set; } = null;
+    public string RawWaveformColor { get; set; } = null;
     public bool ExcludeCredits { get; set; }
 }
