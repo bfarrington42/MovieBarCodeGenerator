@@ -161,7 +161,8 @@ public class CLITests
     [TestCase(null, true, 0.6)]
     [TestCase("", true, 0.6)]
     [TestCase("0.7", true, 0.7)]
-    [TestCase("0", true, 0.0)]
+    [TestCase("0", false, 0.0)]
+    [TestCase("0.1", true, 0.1)]
     [TestCase("1", true, 1.0)]
     [TestCase("1.5", false, 0.0)]
     [TestCase("-0.1", false, 0.0)]
@@ -203,6 +204,29 @@ public class CLITests
             Assert.AreEqual(r, color.R);
             Assert.AreEqual(g, color.G);
             Assert.AreEqual(b, color.B);
+        }
+    }
+
+    [TestCase(null, true, 0.5)]
+    [TestCase("", true, 0.5)]
+    [TestCase("0.7", true, 0.7)]
+    [TestCase("0", false, 0.0)]
+    [TestCase("0.1", true, 0.1)]
+    [TestCase("1", true, 1.0)]
+    [TestCase("1.5", false, 0.0)]
+    [TestCase("-0.1", false, 0.0)]
+    [TestCase("abc", false, 0.0)]
+    [TestCase("0,7", false, 0.0)]
+    [Test]
+    public void TryParseBrightnessIntensity_Returns_Expected_Result(string input, bool expected, double expectedIntensity)
+    {
+        bool actual = CLIBatchProcessor.TryParseBrightnessIntensity(input, out double intensity);
+
+        Assert.AreEqual(expected, actual);
+        Assert.AreEqual(expectedIntensity, intensity);
+        if (input == null)
+        {
+            Assert.AreEqual(ImageStreamProcessor.DefaultBrightnessIntensity, intensity);
         }
     }
 }

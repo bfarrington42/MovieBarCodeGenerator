@@ -19,6 +19,7 @@ using MovieBarCodeGenerator.Core.Generators;
 using MovieBarCodeGenerator.Core.Utils;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,11 @@ public class ImageStreamProcessor
     /// </summary>
     public const double DefaultOverlayStrength = 0.6;
 
+    /// <summary>
+    /// Default spectral brightness intensity
+    /// </summary>
+    public const double DefaultBrightnessIntensity = 0.5;
+
     public IReadOnlyDictionary<IBarGenerator, Bitmap> CreateBarCodes(
         BarCodeParameters parameters,
         FfmpegWrapper ffmpeg,
@@ -40,7 +46,11 @@ public class ImageStreamProcessor
         bool excludeCredits = false,
         bool overlayWaveform = false,
         double overlayStrength = DefaultOverlayStrength,
-        Color overlayWaveformColor = default)
+        Color overlayWaveformColor = default,
+        bool spectralBrightness = false,
+        double brightnessIntensity = DefaultBrightnessIntensity,
+        bool smoothed = false,
+        bool cropLetterbox = false)
     {
         TimeSpan? contentEnd = null;
         var barGenerators = parameters.GeneratorOutputPaths.Keys.ToArray();
@@ -67,7 +77,29 @@ public class ImageStreamProcessor
             }
         }
 
-        bool needsAudio = audioGenerators.Length > 0 || overlayRequested;
+        // Spectral brightness grades every selected video mode by the audio
+        // spectral centroid, like the waveform overlay above.
+        bool brightnessRequested = spectralBrightness && videoGenerators.Length > 0;
+        if (spectralBrightness && videoGenerators.Length == 0)
+        {
+            log?.Invoke("WARNING: spectral brightness is ignored when no video-based generators are selected.");
+        }
+
+        if (brightnessRequested && (double.IsNaN(brightnessIntensity) || brightnessIntensity < 0 || brightnessIntensity > 1))
+        {
+            throw new ArgumentOutOfRangeException(nameof(brightnessIntensity), "Brightness intensity must be between 0 and 1.");
+        }
+
+        bool needsAudio = audioGenerators.Length > 0 || overlayRequested || brightnessRequested;
+
+        // Letterbox cropping cuts the bars off each frame up front, so every
+        // selected mode averages the picture instead of black bars. Needs no
+        // audio, just video frames to crop.
+        bool cropRequested = cropLetterbox && videoGenerators.Length > 0;
+        if (cropLetterbox && videoGenerators.Length == 0)
+        {
+            log?.Invoke("WARNING: letterbox cropping is ignored when no video-based generators are selected.");
+        }
         bool needsVideo = videoGenerators.Length > 0;
 
         // Pure audio runs have no video to trim, so credits detection is
@@ -125,27 +157,62 @@ public class ImageStreamProcessor
                 {
                     using (bitmapStream)
                     {
-                        for (int i = 0; i < videoGenerators.Length; i++)
+                        // With cropping, detect bars first. Bar-less frames pass
+                        // through untouched (no re-encode, no quality change).
+                        BitmapStream frameStream = bitmapStream;
+                        BitmapStream croppedStream = null;
+                        if (cropRequested)
                         {
                             bitmapStream.Position = 0;
-                            Image bar;
-                            if (videoGenerators[i] is IFrameAwareBarGenerator frameAwareGenerator)
+                            using (var frame = Image.FromStream(bitmapStream, true, false))
                             {
-                                bar = frameAwareGenerator.GetBar(bitmapStream, parameters.BarWidth, actualBarHeight, frameIndex, barCount);
+                                // Generous cap; the content guard binds first.
+                                if (LetterboxCrop.TryDetectBars((Bitmap)frame, 0.4, out int topBars, out int bottomBars))
+                                {
+                                    using (var cropped = LetterboxCrop.CropToBars((Bitmap)frame, topBars, bottomBars))
+                                    {
+                                        var croppedBytes = new MemoryStream();
+                                        cropped.Save(croppedBytes, ImageFormat.Bmp);
+                                        croppedBytes.Position = 0;
+                                        croppedStream = new BitmapStream(croppedBytes);
+                                    }
+                                }
                             }
-                            else
+
+                            if (croppedStream != null)
                             {
-                                bar = videoGenerators[i].GetBar(bitmapStream, parameters.BarWidth, actualBarHeight);
+                                frameStream = croppedStream;
                             }
-                            var srcRect = new Rectangle(0, 0, bar.Width, bar.Height);
-                            var destRect = new Rectangle(x, 0, parameters.BarWidth, actualBarHeight);
-                            finalBitmapGraphics[i].DrawImage(bar, destRect, srcRect, GraphicsUnit.Pixel);
                         }
 
-                        x += parameters.BarWidth;
-                        frameIndex++;
+                        try
+                        {
+                            for (int i = 0; i < videoGenerators.Length; i++)
+                            {
+                                frameStream.Position = 0;
+                                Image bar;
+                                if (videoGenerators[i] is IFrameAwareBarGenerator frameAwareGenerator)
+                                {
+                                    bar = frameAwareGenerator.GetBar(frameStream, parameters.BarWidth, actualBarHeight, frameIndex, barCount);
+                                }
+                                else
+                                {
+                                    bar = videoGenerators[i].GetBar(frameStream, parameters.BarWidth, actualBarHeight);
+                                }
+                                var srcRect = new Rectangle(0, 0, bar.Width, bar.Height);
+                                var destRect = new Rectangle(x, 0, parameters.BarWidth, actualBarHeight);
+                                finalBitmapGraphics[i].DrawImage(bar, destRect, srcRect, GraphicsUnit.Pixel);
+                            }
 
-                        progress?.Report((double)x / parameters.Width);
+                            x += parameters.BarWidth;
+                            frameIndex++;
+
+                            progress?.Report((double)x / parameters.Width);
+                        }
+                        finally
+                        {
+                            croppedStream?.Dispose();
+                        }
                     }
                 }
             }
@@ -185,6 +252,32 @@ public class ImageStreamProcessor
         if (!needsVideo)
         {
             return result;
+        }
+
+        if (smoothed)
+        {
+            // Averaging each finished barcode first keeps the waveform silhouette (applied last) crisp.
+            foreach (var baseBitmap in finalBitmaps)
+            {
+                Smoothing.SmoothVertically(baseBitmap);
+            }
+        }
+
+        if (brightnessRequested)
+        {
+            if (audio == null || !audio.HasAudio)
+            {
+                log?.Invoke("WARNING: no audio track found, skipping spectral brightness.");
+            }
+            else
+            {
+                // Brightness first, waveform second
+                float[] gains = SpectralBrightness.ComputeGains(audio.Samples, audio.SampleRate, parameters.Width, parameters.BarWidth, brightnessIntensity, cancellationToken);
+                foreach (var baseBitmap in finalBitmaps)
+                {
+                    HsvColor.ApplyColumnGains(baseBitmap, gains, parameters.BarWidth);
+                }
+            }
         }
 
         if (overlayRequested)

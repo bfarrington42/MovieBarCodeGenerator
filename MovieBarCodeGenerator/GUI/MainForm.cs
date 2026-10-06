@@ -55,6 +55,12 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
     {
         InitializeComponent();
 
+        // The designer strips this line because the property's DefaultValue
+        // attribute claims it is false, but pages are draggable at runtime
+        // without it. The designer will keep deleting it, so it lives here
+        // instead.
+        settingsWorkspaceCell.AllowPageDrag = false;
+
         _logForm = new LogForm();
         _ = _logForm.Handle;
         _logForm.UserClosed += (s, e) => logToggleButton.Checked = false;
@@ -77,39 +83,27 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
             {
                 new BarGeneratorViewModel(
                     new MagicScalerBarGenerator("Normal", average: false),
-                    "The default mode to generate barcodes.\r\nIt scales images using a resampling algorithm that takes care of gamma correction and produces correct color averages.",
+                    "The default mode to generate barcodes. It scales images using a resampling algorithm that takes care of gamma correction and produces correct color averages.",
                     initialCheckState: true),
                 new BarGeneratorViewModel(
-                    new MagicScalerBarGenerator("Normal (smoothed)", "_smoothed", average: true, InterpolationSettings.CubicSmoother),
-                    "Almost the same as the 'Normal' mode, but vertically smoothed.\r\nIt also uses a 'cubic smoother' resampling algorithm that generates images sharper than the normal algorithm.",
-                    initialCheckState: false),
-                new BarGeneratorViewModel(
-                    new LetterboxCropBarGenerator("Normal (cropped)"),
-                    "Crops the top and bottom off each frame (letterbox bars) before scaling, so widescreen movies average the picture instead of the black bars.",
-                    initialCheckState: false),
-                new BarGeneratorViewModel(
                     GdiBarGenerator.CreateLegacy(average: false),
-                    "The mode used in previous versions.\r\nIt's relatively fast, but the algorithm used to scale images is of poor quality.\r\nThis mode is not recommended, and only here for backward-compatibility.",
-                    initialCheckState: false),
-                new BarGeneratorViewModel(
-                    GdiBarGenerator.CreateLegacy(average: true),
-                    "Same as 'Legacy', but vertically smoothed.",
+                    "The mode used in previous versions. It's relatively fast, but the algorithm used to scale images is of poor quality. This mode is not recommended, and only here for backward-compatibility.",
                     initialCheckState: false),
                 new BarGeneratorViewModel(
                     new ScanlineBarGenerator("Scanline"),
-                    "Samples the middle row of each frame and stretches it into a bar.\r\nSharper than the average-based modes and immune to letterbox bars, but noisier.",
+                    "Samples the middle row of each frame and stretches it into a bar. Sharper than the average-based modes and immune to letterbox bars, but noisier.",
                     initialCheckState: false),
                 new BarGeneratorViewModel(
                     new VerticalSweepBarGenerator("Vertical sweep"),
-                    "Samples a vertical column of each frame and stretches it into a bar.\r\nThe column sweeps left to right across frames, wrapping around.",
+                    "Samples a vertical column of each frame and stretches it into a bar. The column sweeps left to right across frames, wrapping around.",
                     initialCheckState: false),
                 new BarGeneratorViewModel(
                     new DominantColorBarGenerator("Dominant color"),
-                    "Paints each bar the most common color of its frame.\r\nPoster-like barcodes instead of the smeared average.",
+                    "Paints each bar the most common color of its frame. Poster-like barcodes instead of the smeared average.",
                     initialCheckState: false),
                 new BarGeneratorViewModel(
                     new SubjectColorBarGenerator("Subject color"),
-                    "Paints each bar the dominant color of the largest object in its frame.\r\nLike dominant color, but isolated to the main subject.",
+                    "Paints each bar the dominant color of the largest object in its frame. Like dominant color, but isolated to the main subject.",
                     initialCheckState: false),
             };
 
@@ -124,6 +118,7 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
         barGeneratorList.SelectedItem = _barGenerators.First(x => x.Checked); // So that the right panel displays something.
         barGeneratorList.SelectedItem = null; // Unselect so a click on the line will not uncheck the item.
         UpdateWaveformControlsAvailability();
+        UpdateBrightnessControlsAvailability();
 
         AppendLog(Text);
 
@@ -193,19 +188,9 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
             DockLogWindow();
             if (!_logForm.Visible)
             {
-                // Potential fix for a minor annoyance
-                //
-                // Occassionally the main window will disappear when the log window is opened.
-                // It reappears after closing the log window and remains working fine afterwards.
-                // Sounds like a race condition, so deferring the click here. So far I haven't
-                // seen it anymore, but it is rather random.
-                BeginInvoke(new Action(() =>
-                {
-                    if (!IsDisposed && logToggleButton.Checked && !_logForm.Visible)
-                    {
-                        _logForm.Show(this);
-                    }
-                }));
+                // The log opens without taking focus, keeping foreground on the main
+                // form avoids it randomly sinking behind other windows on first show.
+                _logForm.Show(this);
             }
         }
         else
@@ -249,6 +234,7 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
         ApplyListHighlightColors(dark);
         ApplyListBaseColors(dark);
         ApplyInfoBoxColors(dark);
+        ApplyWorkspaceBorderColors(dark);
         _logForm.ApplyThemeColors(dark);
         progressBar.StateCommon.Back.Color2 = dark ? _progressTrackDarkColor : Color.White;
         Settings.Default.Theme = dark ? "Dark" : "Light";
@@ -294,6 +280,25 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
             generatorInfoBody.StateCommon.Back.Color1 = Color.FromArgb(227, 230, 232);
             generatorInfoBody.StateCommon.Content.Color1 = Color.FromArgb(59, 59, 59);
         }
+    }
+
+    /// <summary>
+    /// Matches the settings workspace frame to the generator checklist
+    /// frame, since the navigator palette does not resolve the same color on its own.
+    /// </summary>
+    private void ApplyWorkspaceBorderColors(bool dark)
+    {
+        Color border = dark
+            ? Color.FromArgb(132, 132, 132)
+            : Color.FromArgb(212, 214, 217);
+
+        // The page frame is drawn from the HeaderGroup palette, not the
+        // cell border slots.
+        var frame = settingsWorkspaceCell.StateNormal.HeaderGroup.Border;
+        frame.Draw = Krypton.Toolkit.InheritBool.True;
+        frame.Color1 = border;
+        frame.ColorStyle = Krypton.Toolkit.PaletteColorStyle.Solid;
+        frame.Rounding = 3F;
     }
 
     /// <summary>
@@ -453,10 +458,14 @@ Bar width: {parameters.BarWidth}");
                     _cancellationTokenSource.Token,
                     progress,
                     AppendLog,
-                            excludeCredits: excludeCreditsCheckBox.Checked,
-                            overlayWaveform: overlayWaveformCheckBox.Checked,
-                            overlayStrength: waveformStrengthTrackBar.Value / 100.0,
-                    overlayWaveformColor: waveformColorButton.SelectedColor);
+                    excludeCredits: excludeCreditsCheckBox.Checked,
+                    overlayWaveform: overlayWaveformCheckBox.Checked,
+                    overlayStrength: waveformStrengthTrackBar.Value / 100.0,
+                    overlayWaveformColor: waveformColorButton.SelectedColor,
+                    spectralBrightness: spectralBrightnessCheckBox.Checked,
+                    brightnessIntensity: brightnessTrackBar.Value / 100.0,
+                    smoothed: smoothedCheckBox.Checked,
+                    cropLetterbox: croppedCheckBox.Checked);
             }, _cancellationTokenSource.Token);
         }
         catch (OperationCanceledException)
@@ -518,6 +527,7 @@ Bar width: {parameters.BarWidth}");
         }
 
         AppendLog("Barcode generated successfully!");
+        progressBar.Value = progressBar.Minimum;
         TaskbarProgress.SetState(Handle, TaskbarProgress.TaskbarStates.NoProgress);
     }
 
@@ -644,10 +654,14 @@ Bar width: {parameters.BarWidth}");
                             _cancellationTokenSource.Token,
                             progress,
                             AppendLog,
-                    excludeCredits: excludeCreditsCheckBox.Checked,
-                    overlayWaveform: overlayWaveformCheckBox.Checked,
-                    overlayStrength: waveformStrengthTrackBar.Value / 100.0,
-                            overlayWaveformColor: waveformColorButton.SelectedColor);
+                            excludeCredits: excludeCreditsCheckBox.Checked,
+                            overlayWaveform: overlayWaveformCheckBox.Checked,
+                            overlayStrength: waveformStrengthTrackBar.Value / 100.0,
+                            overlayWaveformColor: waveformColorButton.SelectedColor,
+                            spectralBrightness: spectralBrightnessCheckBox.Checked,
+                            brightnessIntensity: brightnessTrackBar.Value / 100.0,
+                            smoothed: smoothedCheckBox.Checked,
+                            cropLetterbox: croppedCheckBox.Checked);
                     }, _cancellationTokenSource.Token);
                 }
                 catch (OperationCanceledException)
@@ -834,8 +848,9 @@ Bar width: {parameters.BarWidth}");
     {
         if (barGeneratorList.SelectedItem is BarGeneratorViewModel generator)
         {
-            generatorInfoBody.Text = $"{generator.DisplayName}\r\n{generator.Details}";
+            generatorInfoBody.Text = $"{generator.Details}";
             TextBoxAutoScroll.Update(generatorInfoBody);
+            settingsWorkspaceCell.SelectedPage = pageGeneral;
         }
     }
 
@@ -851,6 +866,42 @@ Bar width: {parameters.BarWidth}");
     private void overlayWaveformCheckBox_CheckedChanged(object sender, EventArgs e)
     {
         UpdateWaveformControlsAvailability();
+        SelectSettingsPage();
+    }
+
+    /// <summary>
+    /// The track bar works in whole hundredths, 10 to 100, to match the brightness intensity range of 0.1 to 1.
+    /// </summary>
+    private void brightnessTrackBar_ValueChanged(object sender, EventArgs e)
+    {
+        double intensity = brightnessTrackBar.Value / 100.0;
+        brightnessValueLabel.Values.Text = intensity.ToString("0.00");
+    }
+
+    private void spectralBrightnessCheckBox_CheckedChanged(object sender, EventArgs e)
+    {
+        UpdateBrightnessControlsAvailability();
+        SelectSettingsPage();
+    }
+
+    /// <summary>
+    /// Shows the settings page for the most recently enabled option, falling
+    /// back to General. Tabs stay clickable for free navigation.
+    /// </summary>
+    private void SelectSettingsPage()
+    {
+        if (overlayWaveformCheckBox.Checked)
+        {
+            settingsWorkspaceCell.SelectedPage = pageWaveform;
+        }
+        else if (spectralBrightnessCheckBox.Checked)
+        {
+            settingsWorkspaceCell.SelectedPage = pageBrightness;
+        }
+        else
+        {
+            settingsWorkspaceCell.SelectedPage = pageGeneral;
+        }
     }
 
     /// <summary>
@@ -864,6 +915,17 @@ Bar width: {parameters.BarWidth}");
         waveformStrengthTrackBar.Enabled = overlaySelected;
         waveformColorLabel.Enabled = overlaySelected;
         waveformColorButton.Enabled = overlaySelected;
+    }
+
+    /// <summary>
+    /// The brightness controls only apply when the spectral brightness option is checked.
+    /// </summary>
+    private void UpdateBrightnessControlsAvailability()
+    {
+        bool brightnessSelected = spectralBrightnessCheckBox.Checked;
+        brightnessLabel.Enabled = brightnessSelected;
+        brightnessValueLabel.Enabled = brightnessSelected;
+        brightnessTrackBar.Enabled = brightnessSelected;
     }
 
     private void toolTip1_Popup(object sender, PopupEventArgs e)

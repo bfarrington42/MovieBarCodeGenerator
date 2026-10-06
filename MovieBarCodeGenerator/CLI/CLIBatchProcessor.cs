@@ -90,8 +90,8 @@ This parameter can be set multiple times.",
         options.Add("postfix=",
             "Custom postfix appended to every output file name, after the generator suffix " +
             "and before the extension. E.g. --postfix=-banner gives filename-banner.png, " +
-            "filename_smoothed-banner.png, etc. Do not include a file extension. " +
-            "Note: the generator suffix (_smoothed, _legacy, _legacy_smoothed) is omitted " +
+            "filename_legacy-banner.png, etc. Do not include a file extension. " +
+            "Note: the generator suffix (_legacy, _scanline, ...) is omitted " +
             "when only one barcode mode is selected.",
             x => arguments.RawPostfix = x);
 
@@ -99,17 +99,13 @@ This parameter can be set multiple times.",
             "Generate a normal barcode.\nDefaults to True.\n(Use --normal- to set it to False)",
             x => arguments.GenerateNormal = x != null);
 
-        options.Add("normal-smoothed",
-            "Generate a normal smoothed barcode.\nDefaults to False.",
-            x => arguments.GenerateNormalSmoothed = x != null);
+        options.Add("smoothed",
+            "Average each bar vertically for a smoother barcode (applies to all selected modes).\nDefaults to False.",
+            x => arguments.GenerateSmoothed = x != null);
 
         options.Add("legacy",
             "Generate a legacy barcode.\nDefaults to False.",
             x => arguments.GenerateLegacy = x != null);
-
-        options.Add("legacy-smoothed",
-            "Generate a legacy smoothed barcode.\nDefaults to False.",
-            x => arguments.GenerateLegacySmoothed = x != null);
 
         options.Add("scanline",
             "Generate a scanline barcode (middle row of each frame stretched into a bar).\nDefaults to False.",
@@ -120,7 +116,7 @@ This parameter can be set multiple times.",
             x => arguments.GenerateVerticalSweep = x != null);
 
         options.Add("cropped",
-            "Generate a letterbox-cropped barcode (top and bottom cropped off before scaling).\nDefaults to False.",
+            "Crop letterbox bars off each frame before generating (applies to all selected modes). Skipped when no bars are found.\nDefaults to False.",
             x => arguments.GenerateCropped = x != null);
 
         options.Add("dominant",
@@ -142,6 +138,14 @@ This parameter can be set multiple times.",
         options.Add("waveform-color=",
             "Waveform overlay color as hex: 6 digits (RRGGBB, e.g. FF0000 for red) or 8 digits (AARRGGBB), with or without a leading '#'.\nOnly used with --waveform-overlay. Defaults to white.",
             x => arguments.RawWaveformColor = x);
+
+        options.Add("spectral-brightness",
+            "Grade every selected barcode by the audio spectral centroid: brighter sound, brighter bar (needs both video and audio).\nDefaults to False.",
+            x => arguments.GenerateSpectralBrightness = x != null);
+
+        options.Add("brightness-intensity=",
+            $"Spectral brightness intensity, 0.1 to 1. Only used with --spectral-brightness.\nDefault: {ImageStreamProcessor.DefaultBrightnessIntensity}",
+            x => arguments.RawBrightnessIntensity = x);
 
         options.Add("exclude-credits",
             "Detect end credits by scanning the last 15 minutes for dark, text-heavy frames and stop the barcode where they begin.\nDefaults to False.",
@@ -238,6 +242,29 @@ This parameter can be set multiple times.",
         return false;
     }
 
+    /// <summary>
+    /// Parses --brightness-intensity (double) between 0.1 and 1.
+    /// Missing or no value assumes default of 0.5
+    /// Note, we're not allowing 0 because that would be pointless
+    /// </summary>
+    internal static bool TryParseBrightnessIntensity(string raw, out double intensity)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            intensity = ImageStreamProcessor.DefaultBrightnessIntensity;
+            return true;
+        }
+
+        if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out intensity)
+            && intensity >= 0.1 && intensity <= 1)
+        {
+            return true;
+        }
+
+        intensity = default;
+        return false;
+    }
+
     private async Task DealWithOneInputFileAsync(RawArguments arguments)
     {
         Console.WriteLine($"Processing file '{arguments.RawInput}':");
@@ -247,23 +274,14 @@ This parameter can be set multiple times.",
         if (arguments.GenerateNormal)
             generators.Add(new MagicScalerBarGenerator("Normal"));
 
-        if (arguments.GenerateNormalSmoothed)
-            generators.Add(new MagicScalerBarGenerator("Normal (smoothed)", "_smoothed", average: true, interpolation: InterpolationSettings.CubicSmoother));
-
         if (arguments.GenerateLegacy)
             generators.Add(GdiBarGenerator.CreateLegacy(average: false));
-
-        if (arguments.GenerateLegacySmoothed)
-            generators.Add(GdiBarGenerator.CreateLegacy(average: true));
 
         if (arguments.GenerateScanline)
             generators.Add(new ScanlineBarGenerator("Scanline"));
 
         if (arguments.GenerateVerticalSweep)
             generators.Add(new VerticalSweepBarGenerator("Vertical sweep"));
-
-        if (arguments.GenerateCropped)
-            generators.Add(new LetterboxCropBarGenerator("Normal (cropped)"));
 
         if (arguments.GenerateDominant)
             generators.Add(new DominantColorBarGenerator("Dominant color"));
@@ -301,6 +319,20 @@ This parameter can be set multiple times.",
         else if (arguments.RawWaveformStrength != null || arguments.RawWaveformColor != null)
         {
             Console.WriteLine("NOTE: --waveform-strength and --waveform-color are ignored without --waveform-overlay.");
+        }
+
+        double brightnessIntensity = ImageStreamProcessor.DefaultBrightnessIntensity;
+        if (arguments.GenerateSpectralBrightness)
+        {
+            if (!TryParseBrightnessIntensity(arguments.RawBrightnessIntensity, out brightnessIntensity))
+            {
+                Console.Error.WriteLine($"Invalid --brightness-intensity value '{arguments.RawBrightnessIntensity}': expected a number between 0.1 and 1.");
+                return;
+            }
+        }
+        else if (arguments.RawBrightnessIntensity != null)
+        {
+            Console.WriteLine("NOTE: --brightness-intensity is ignored without --spectral-brightness.");
         }
 
         IReadOnlyCollection<string> existingOutputs = Array.Empty<string>();
@@ -343,7 +375,11 @@ This parameter can be set multiple times.",
                 excludeCredits: arguments.ExcludeCredits,
                 overlayWaveform: arguments.GenerateWaveformOverlay,
                 overlayStrength: overlayStrength,
-                overlayWaveformColor: overlayColor);
+                overlayWaveformColor: overlayColor,
+                spectralBrightness: arguments.GenerateSpectralBrightness,
+                brightnessIntensity: brightnessIntensity,
+                smoothed: arguments.GenerateSmoothed,
+                cropLetterbox: arguments.GenerateCropped);
             return result;
         }); // Image Magic throws if we are on an STA thread, so we have to execute everything on the thread pool and wait...
 
@@ -407,9 +443,8 @@ class RawArguments
     public string RawPostfix { get; set; } = null;
 
     public bool GenerateNormal { get; set; } = true;
-    public bool GenerateNormalSmoothed { get; set; }
+    public bool GenerateSmoothed { get; set; }
     public bool GenerateLegacy { get; set; }
-    public bool GenerateLegacySmoothed { get; set; }
     public bool GenerateScanline { get; set; }
     public bool GenerateVerticalSweep { get; set; }
     public bool GenerateCropped { get; set; }
@@ -418,5 +453,7 @@ class RawArguments
     public bool GenerateWaveformOverlay { get; set; }
     public string RawWaveformStrength { get; set; } = null;
     public string RawWaveformColor { get; set; } = null;
+    public bool GenerateSpectralBrightness { get; set; }
+    public string RawBrightnessIntensity { get; set; } = null;
     public bool ExcludeCredits { get; set; }
 }

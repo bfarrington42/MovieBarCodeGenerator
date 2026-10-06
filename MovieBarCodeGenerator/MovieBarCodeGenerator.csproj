@@ -68,12 +68,14 @@
     <Compile Include="Core\Generators\IBarGenerator.cs" />
     <Compile Include="Core\Generators\IFrameAwareBarGenerator.cs" />
     <Compile Include="Core\Generators\IAudioBarGenerator.cs" />
-    <Compile Include="Core\Generators\LetterboxCropBarGenerator.cs" />
     <Compile Include="Core\Generators\DominantColorBarGenerator.cs" />
     <Compile Include="Core\Generators\SubjectColorBarGenerator.cs" />
     <Compile Include="Core\Utils\DominantColor.cs" />
     <Compile Include="Core\Utils\EdgeDetector.cs" />
     <Compile Include="Core\Utils\HsvColor.cs" />
+    <Compile Include="Core\Utils\SpectralBrightness.cs" />
+    <Compile Include="Core\Utils\Smoothing.cs" />
+    <Compile Include="Core\Utils\LetterboxCrop.cs" />
     <Compile Include="Core\Utils\CreditDetector.cs" />
     <Compile Include="Core\Utils\WaveformBarGenerator.cs" />
     <Compile Include="Core\SupportedVideoExtensions.cs" />
@@ -165,6 +167,7 @@
     </PackageReference>
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.15.0" />
     <PackageReference Include="Krypton.Toolkit" Version="105.26.7.201" />
+    <PackageReference Include="Krypton.Workspace" Version="105.26.7.201" />
     <PackageReference Include="NWaves" Version="0.9.6" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

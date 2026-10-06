@@ -222,4 +222,65 @@ public static class HsvColor
 
     private static byte ToByte(double value)
         => (byte)Math.Min(255, Math.Max(0, Math.Round(value)));
+
+    /// <summary>
+    /// Scales each column's value in place by its bar gain (column
+    /// <c>x</c> uses <c>gains[x / barWidth]</c>, clamped to the last gain),
+    /// keeping hue and saturation. A gain of exactly 1 leaves pixels
+    /// byte-identical. Values clamp to the valid range.
+    /// </summary>
+    public static void ApplyColumnGains(Bitmap target, float[] gains, int barWidth)
+    {
+        if (target == null)
+        {
+            throw new ArgumentNullException(nameof(target));
+        }
+
+        if (barWidth <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(barWidth));
+        }
+
+        if (gains == null || gains.Length == 0)
+        {
+            return;
+        }
+
+        var rect = new Rectangle(0, 0, target.Width, target.Height);
+        var targetData = target.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+        try
+        {
+            int stride = Math.Abs(targetData.Stride);
+            var targetRow = new byte[stride];
+            for (int y = 0; y < target.Height; y++)
+            {
+                Marshal.Copy(IntPtr.Add(targetData.Scan0, y * stride), targetRow, 0, stride);
+                for (int x = 0; x < target.Width; x++)
+                {
+                    float gain = gains[Math.Min(x / barWidth, gains.Length - 1)];
+                    if (gain == 1f)
+                    {
+                        continue;
+                    }
+
+                    byte b = targetRow[(x * 4) + 0];
+                    byte g = targetRow[(x * 4) + 1];
+                    byte r = targetRow[(x * 4) + 2];
+
+                    RgbToHsv(r, g, b, out double h, out double s, out double v);
+                    HsvToRgb(h, s, Math.Min(1, Math.Max(0, v * gain)), out r, out g, out b);
+
+                    targetRow[(x * 4) + 0] = b;
+                    targetRow[(x * 4) + 1] = g;
+                    targetRow[(x * 4) + 2] = r;
+                }
+
+                Marshal.Copy(targetRow, 0, IntPtr.Add(targetData.Scan0, y * stride), stride);
+            }
+        }
+        finally
+        {
+            target.UnlockBits(targetData);
+        }
+    }
 }

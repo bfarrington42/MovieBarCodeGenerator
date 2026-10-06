@@ -58,6 +58,10 @@
     <Compile Include="SubjectColorBarGeneratorTests.cs" />
     <Compile Include="CreditDetectorTests.cs" />
     <Compile Include="WaveformBarGeneratorTests.cs" />
+    <Compile Include="SpectralBrightnessTests.cs" />
+    <Compile Include="HsvColorTests.cs" />
+    <Compile Include="SmoothingTests.cs" />
+    <Compile Include="LetterboxCropTests.cs" />
     <Compile Include="TextBoxAutoScrollTests.cs" />
   </ItemGroup>
   <ItemGroup>

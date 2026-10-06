@@ -51,25 +51,36 @@ namespace MovieBarCodeGenerator.GUI
             this.aboutButton = new Krypton.Toolkit.KryptonButton();
             this.themeButton = new Krypton.Toolkit.KryptonCheckButton();
             this.optionsSection = new Krypton.Toolkit.KryptonGroupBox();
+            this.settingsWorkspace = new Krypton.Workspace.KryptonWorkspace();
+            this.pageGeneral = new Krypton.Navigator.KryptonPage();
             this.generatorInfoBody = new Krypton.Toolkit.KryptonTextBox();
+            this.outputImageSizeLabel = new Krypton.Toolkit.KryptonLabel();
+            this.imageWidthTextBox = new Krypton.Toolkit.KryptonTextBox();
+            this.label4 = new Krypton.Toolkit.KryptonLabel();
+            this.imageHeightTextBox = new Krypton.Toolkit.KryptonTextBox();
+            this.barCountLabel = new Krypton.Toolkit.KryptonLabel();
+            this.barCountTextBox = new Krypton.Toolkit.KryptonTextBox();
+            this.barWidthLabel = new Krypton.Toolkit.KryptonLabel();
+            this.barWidthTextBox = new Krypton.Toolkit.KryptonTextBox();
+            this.precendenceNote = new Krypton.Toolkit.KryptonLabel();
+            this.excludeCreditsCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.smoothedCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.croppedCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.settingsWorkspaceCell = new Krypton.Workspace.KryptonWorkspaceCell();
+            this.pageWaveform = new Krypton.Navigator.KryptonPage();
             this.overlayWaveformCheckBox = new Krypton.Toolkit.KryptonCheckBox();
             this.waveformStrengthLabel = new Krypton.Toolkit.KryptonLabel();
             this.waveformStrengthValueLabel = new Krypton.Toolkit.KryptonLabel();
             this.waveformStrengthTrackBar = new Krypton.Toolkit.KryptonTrackBar();
             this.waveformColorLabel = new Krypton.Toolkit.KryptonLabel();
             this.waveformColorButton = new Krypton.Toolkit.KryptonColorButton();
+            this.pageBrightness = new Krypton.Navigator.KryptonPage();
+            this.spectralBrightnessCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.brightnessLabel = new Krypton.Toolkit.KryptonLabel();
+            this.brightnessValueLabel = new Krypton.Toolkit.KryptonLabel();
+            this.brightnessTrackBar = new Krypton.Toolkit.KryptonTrackBar();
             this.modeSelectionLabel = new Krypton.Toolkit.KryptonLabel();
-            this.excludeCreditsCheckBox = new Krypton.Toolkit.KryptonCheckBox();
             this.barGeneratorList = new Krypton.Toolkit.KryptonCheckedListBox();
-            this.precendenceNote = new Krypton.Toolkit.KryptonLabel();
-            this.barWidthLabel = new Krypton.Toolkit.KryptonLabel();
-            this.barWidthTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.barCountLabel = new Krypton.Toolkit.KryptonLabel();
-            this.barCountTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.label4 = new Krypton.Toolkit.KryptonLabel();
-            this.imageHeightTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.outputImageSizeLabel = new Krypton.Toolkit.KryptonLabel();
-            this.imageWidthTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.progressBar = new Krypton.Toolkit.KryptonProgressBar();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.logToggleButton = new Krypton.Toolkit.KryptonCheckButton();
@@ -81,6 +92,16 @@ namespace MovieBarCodeGenerator.GUI
             ((System.ComponentModel.ISupportInitialize)(this.optionsSection.Panel)).BeginInit();
             this.optionsSection.Panel.SuspendLayout();
             this.optionsSection.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.settingsWorkspace)).BeginInit();
+            this.settingsWorkspace.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pageGeneral)).BeginInit();
+            this.pageGeneral.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.settingsWorkspaceCell)).BeginInit();
+            this.settingsWorkspaceCell.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pageWaveform)).BeginInit();
+            this.pageWaveform.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pageBrightness)).BeginInit();
+            this.pageBrightness.SuspendLayout();
             this.SuspendLayout();
             // 
             // kryptonManager1
@@ -117,7 +138,7 @@ namespace MovieBarCodeGenerator.GUI
             // generateButton
             // 
             this.generateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.generateButton.Location = new System.Drawing.Point(556, 618);
+            this.generateButton.Location = new System.Drawing.Point(556, 625);
             this.generateButton.Name = "generateButton";
             this.generateButton.Size = new System.Drawing.Size(75, 25);
             this.generateButton.StateCommon.Content.Padding = new System.Windows.Forms.Padding(3);
@@ -262,45 +283,227 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // optionsSection.Panel
             // 
-            this.optionsSection.Panel.Controls.Add(this.generatorInfoBody);
-            this.optionsSection.Panel.Controls.Add(this.overlayWaveformCheckBox);
-            this.optionsSection.Panel.Controls.Add(this.waveformStrengthLabel);
-            this.optionsSection.Panel.Controls.Add(this.waveformStrengthValueLabel);
-            this.optionsSection.Panel.Controls.Add(this.waveformStrengthTrackBar);
-            this.optionsSection.Panel.Controls.Add(this.waveformColorLabel);
-            this.optionsSection.Panel.Controls.Add(this.waveformColorButton);
+            this.optionsSection.Panel.Controls.Add(this.settingsWorkspace);
             this.optionsSection.Panel.Controls.Add(this.modeSelectionLabel);
-            this.optionsSection.Panel.Controls.Add(this.excludeCreditsCheckBox);
             this.optionsSection.Panel.Controls.Add(this.barGeneratorList);
-            this.optionsSection.Panel.Controls.Add(this.precendenceNote);
-            this.optionsSection.Panel.Controls.Add(this.barWidthLabel);
-            this.optionsSection.Panel.Controls.Add(this.barWidthTextBox);
-            this.optionsSection.Panel.Controls.Add(this.barCountLabel);
-            this.optionsSection.Panel.Controls.Add(this.barCountTextBox);
-            this.optionsSection.Panel.Controls.Add(this.label4);
-            this.optionsSection.Panel.Controls.Add(this.imageHeightTextBox);
-            this.optionsSection.Panel.Controls.Add(this.outputImageSizeLabel);
-            this.optionsSection.Panel.Controls.Add(this.imageWidthTextBox);
-            this.optionsSection.Size = new System.Drawing.Size(619, 365);
+            this.optionsSection.Size = new System.Drawing.Size(619, 370);
             this.optionsSection.TabIndex = 5;
             this.optionsSection.Values.Heading = "Barcode parameters";
+            // 
+            // settingsWorkspace
+            // 
+            this.settingsWorkspace.ActivePage = this.pageGeneral;
+            this.settingsWorkspace.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.settingsWorkspace.CompactFlags = ((Krypton.Workspace.CompactFlags)((((Krypton.Workspace.CompactFlags.RemoveEmptyCells | Krypton.Workspace.CompactFlags.RemoveEmptySequences) 
+            | Krypton.Workspace.CompactFlags.PromoteLeafs) 
+            | Krypton.Workspace.CompactFlags.AtLeastOneVisibleCell)));
+            this.settingsWorkspace.ContainerBackStyle = Krypton.Toolkit.PaletteBackStyle.PanelClient;
+            this.settingsWorkspace.Location = new System.Drawing.Point(286, 15);
+            this.settingsWorkspace.Name = "settingsWorkspace";
+            // 
+            // 
+            // 
+            this.settingsWorkspace.Root.Children.AddRange(new System.ComponentModel.Component[] {
+            this.settingsWorkspaceCell});
+            this.settingsWorkspace.Root.UniqueName = "6ae34437fbe54d888dbdcd47e47d10d5";
+            this.settingsWorkspace.SeparatorStyle = Krypton.Toolkit.SeparatorStyle.LowProfile;
+            this.settingsWorkspace.Size = new System.Drawing.Size(324, 328);
+            this.settingsWorkspace.SplitterWidth = 5;
+            this.settingsWorkspace.TabIndex = 19;
+            this.settingsWorkspace.TabStop = true;
+            // 
+            // pageGeneral
+            // 
+            this.pageGeneral.AutoHiddenSlideSize = new System.Drawing.Size(200, 200);
+            this.pageGeneral.Controls.Add(this.generatorInfoBody);
+            this.pageGeneral.Controls.Add(this.outputImageSizeLabel);
+            this.pageGeneral.Controls.Add(this.imageWidthTextBox);
+            this.pageGeneral.Controls.Add(this.label4);
+            this.pageGeneral.Controls.Add(this.imageHeightTextBox);
+            this.pageGeneral.Controls.Add(this.barCountLabel);
+            this.pageGeneral.Controls.Add(this.barCountTextBox);
+            this.pageGeneral.Controls.Add(this.barWidthLabel);
+            this.pageGeneral.Controls.Add(this.barWidthTextBox);
+            this.pageGeneral.Controls.Add(this.precendenceNote);
+            this.pageGeneral.Controls.Add(this.excludeCreditsCheckBox);
+            this.pageGeneral.Controls.Add(this.smoothedCheckBox);
+            this.pageGeneral.Controls.Add(this.croppedCheckBox);
+            this.pageGeneral.Flags = 65534;
+            this.pageGeneral.LastVisibleSet = true;
+            this.pageGeneral.MinimumSize = new System.Drawing.Size(150, 50);
+            this.pageGeneral.Name = "pageGeneral";
+            this.pageGeneral.Size = new System.Drawing.Size(322, 301);
+            this.pageGeneral.Text = "General";
+            this.pageGeneral.ToolTipTitle = "Page ToolTip";
+            this.pageGeneral.UniqueName = "GeneralPage";
             // 
             // generatorInfoBody
             // 
             this.generatorInfoBody.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.generatorInfoBody.Location = new System.Drawing.Point(286, 130);
+            this.generatorInfoBody.Location = new System.Drawing.Point(8, 8);
             this.generatorInfoBody.Multiline = true;
             this.generatorInfoBody.Name = "generatorInfoBody";
             this.generatorInfoBody.ReadOnly = true;
-            this.generatorInfoBody.Size = new System.Drawing.Size(324, 113);
+            this.generatorInfoBody.Size = new System.Drawing.Size(305, 74);
             this.generatorInfoBody.StateCommon.Border.Draw = Krypton.Toolkit.InheritBool.False;
             this.generatorInfoBody.TabIndex = 15;
             // 
+            // outputImageSizeLabel
+            // 
+            this.outputImageSizeLabel.Location = new System.Drawing.Point(8, 88);
+            this.outputImageSizeLabel.Name = "outputImageSizeLabel";
+            this.outputImageSizeLabel.Size = new System.Drawing.Size(126, 20);
+            this.outputImageSizeLabel.TabIndex = 1;
+            this.outputImageSizeLabel.Values.Text = "Image size (in pixels):";
+            // 
+            // imageWidthTextBox
+            // 
+            this.imageWidthTextBox.Location = new System.Drawing.Point(8, 106);
+            this.imageWidthTextBox.Name = "imageWidthTextBox";
+            this.imageWidthTextBox.Size = new System.Drawing.Size(55, 23);
+            this.imageWidthTextBox.TabIndex = 6;
+            this.imageWidthTextBox.Text = "1000";
+            this.imageWidthTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.imageWidthTextBox_KeyUp);
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(66, 108);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(16, 20);
+            this.label4.TabIndex = 11;
+            this.label4.Values.Text = "x";
+            // 
+            // imageHeightTextBox
+            // 
+            this.imageHeightTextBox.Location = new System.Drawing.Point(88, 106);
+            this.imageHeightTextBox.Name = "imageHeightTextBox";
+            this.imageHeightTextBox.Size = new System.Drawing.Size(55, 23);
+            this.imageHeightTextBox.TabIndex = 7;
+            this.imageHeightTextBox.Text = "256";
+            // 
+            // barCountLabel
+            // 
+            this.barCountLabel.Location = new System.Drawing.Point(8, 137);
+            this.barCountLabel.Name = "barCountLabel";
+            this.barCountLabel.Size = new System.Drawing.Size(65, 20);
+            this.barCountLabel.TabIndex = 14;
+            this.barCountLabel.Values.Text = "Bar count:";
+            // 
+            // barCountTextBox
+            // 
+            this.barCountTextBox.Location = new System.Drawing.Point(8, 155);
+            this.barCountTextBox.Name = "barCountTextBox";
+            this.barCountTextBox.Size = new System.Drawing.Size(55, 23);
+            this.barCountTextBox.TabIndex = 9;
+            this.barCountTextBox.Text = "1000";
+            this.barCountTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.barCountTextBox_KeyUp);
+            // 
+            // barWidthLabel
+            // 
+            this.barWidthLabel.Location = new System.Drawing.Point(79, 139);
+            this.barWidthLabel.Name = "barWidthLabel";
+            this.barWidthLabel.Size = new System.Drawing.Size(119, 20);
+            this.barWidthLabel.TabIndex = 16;
+            this.barWidthLabel.Values.Text = "Bar width (in pixels):";
+            // 
+            // barWidthTextBox
+            // 
+            this.barWidthTextBox.Location = new System.Drawing.Point(88, 155);
+            this.barWidthTextBox.Name = "barWidthTextBox";
+            this.barWidthTextBox.Size = new System.Drawing.Size(55, 23);
+            this.barWidthTextBox.TabIndex = 10;
+            this.barWidthTextBox.Text = "1";
+            this.barWidthTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.barWidthTextBox_KeyUp);
+            // 
+            // precendenceNote
+            // 
+            this.precendenceNote.Location = new System.Drawing.Point(8, 182);
+            this.precendenceNote.Name = "precendenceNote";
+            this.precendenceNote.Size = new System.Drawing.Size(210, 20);
+            this.precendenceNote.TabIndex = 17;
+            this.precendenceNote.Values.Text = "Note: bar width will take precedence";
+            // 
+            // excludeCreditsCheckBox
+            // 
+            this.excludeCreditsCheckBox.Location = new System.Drawing.Point(8, 204);
+            this.excludeCreditsCheckBox.Name = "excludeCreditsCheckBox";
+            this.excludeCreditsCheckBox.Size = new System.Drawing.Size(129, 20);
+            this.excludeCreditsCheckBox.TabIndex = 12;
+            this.toolTip1.SetToolTip(this.excludeCreditsCheckBox, "Detects dark end credits with a quick brightness scan and ends the barcode where " +
+        "they begin.");
+            this.excludeCreditsCheckBox.Values.Text = "Exclude end credits";
+            // 
+            // smoothedCheckBox
+            // 
+            this.smoothedCheckBox.Location = new System.Drawing.Point(8, 226);
+            this.smoothedCheckBox.Name = "smoothedCheckBox";
+            this.smoothedCheckBox.Size = new System.Drawing.Size(80, 20);
+            this.smoothedCheckBox.TabIndex = 31;
+            this.toolTip1.SetToolTip(this.smoothedCheckBox, "Average each bar vertically for a smoother barcode (applies to all selected modes" +
+        ").");
+            this.smoothedCheckBox.Values.Text = "Smoothed";
+            // 
+            // croppedCheckBox
+            // 
+            this.croppedCheckBox.Location = new System.Drawing.Point(8, 248);
+            this.croppedCheckBox.Name = "croppedCheckBox";
+            this.croppedCheckBox.Size = new System.Drawing.Size(71, 20);
+            this.croppedCheckBox.TabIndex = 32;
+            this.toolTip1.SetToolTip(this.croppedCheckBox, "Crop letterbox bars off each frame before generating (applies to all selected mod" +
+        "es). Skipped when no bars are found.");
+            this.croppedCheckBox.Values.Text = "Cropped";
+            // 
+            // settingsWorkspaceCell
+            // 
+            this.settingsWorkspaceCell.AllowPageDrag = true;
+            this.settingsWorkspaceCell.AllowPageReorder = false;
+            this.settingsWorkspaceCell.AllowTabFocus = false;
+            this.settingsWorkspaceCell.Button.ButtonDisplayLogic = Krypton.Navigator.ButtonDisplayLogic.Context;
+            this.settingsWorkspaceCell.Button.CloseButtonAction = Krypton.Navigator.CloseButtonAction.RemovePageAndDispose;
+            this.settingsWorkspaceCell.Button.CloseButtonDisplay = Krypton.Navigator.ButtonDisplay.Hide;
+            this.settingsWorkspaceCell.Button.ContextButtonAction = Krypton.Navigator.ContextButtonAction.SelectPage;
+            this.settingsWorkspaceCell.Button.ContextButtonDisplay = Krypton.Navigator.ButtonDisplay.Hide;
+            this.settingsWorkspaceCell.Button.ContextMenuMapImage = Krypton.Navigator.MapKryptonPageImage.Small;
+            this.settingsWorkspaceCell.Button.ContextMenuMapText = Krypton.Navigator.MapKryptonPageText.TextTitle;
+            this.settingsWorkspaceCell.Button.NextButtonAction = Krypton.Navigator.DirectionButtonAction.ModeAppropriateAction;
+            this.settingsWorkspaceCell.Button.NextButtonDisplay = Krypton.Navigator.ButtonDisplay.Logic;
+            this.settingsWorkspaceCell.Button.PreviousButtonAction = Krypton.Navigator.DirectionButtonAction.ModeAppropriateAction;
+            this.settingsWorkspaceCell.Button.PreviousButtonDisplay = Krypton.Navigator.ButtonDisplay.Logic;
+            this.settingsWorkspaceCell.ControlKryptonFormFeatures = false;
+            this.settingsWorkspaceCell.NavigatorMode = Krypton.Navigator.NavigatorMode.BarTabGroup;
+            this.settingsWorkspaceCell.Owner = null;
+            this.settingsWorkspaceCell.PageBackStyle = Krypton.Toolkit.PaletteBackStyle.PanelClient;
+            this.settingsWorkspaceCell.Pages.AddRange(new Krypton.Navigator.KryptonPage[] {
+            this.pageGeneral,
+            this.pageWaveform,
+            this.pageBrightness});
+            this.settingsWorkspaceCell.SelectedIndex = 0;
+            this.settingsWorkspaceCell.UniqueName = "SettingsCell";
+            // 
+            // pageWaveform
+            // 
+            this.pageWaveform.AutoHiddenSlideSize = new System.Drawing.Size(200, 200);
+            this.pageWaveform.Controls.Add(this.overlayWaveformCheckBox);
+            this.pageWaveform.Controls.Add(this.waveformStrengthLabel);
+            this.pageWaveform.Controls.Add(this.waveformStrengthValueLabel);
+            this.pageWaveform.Controls.Add(this.waveformStrengthTrackBar);
+            this.pageWaveform.Controls.Add(this.waveformColorLabel);
+            this.pageWaveform.Controls.Add(this.waveformColorButton);
+            this.pageWaveform.Flags = 65534;
+            this.pageWaveform.LastVisibleSet = true;
+            this.pageWaveform.MinimumSize = new System.Drawing.Size(150, 50);
+            this.pageWaveform.Name = "pageWaveform";
+            this.pageWaveform.Size = new System.Drawing.Size(322, 292);
+            this.pageWaveform.Text = "Waveform";
+            this.pageWaveform.ToolTipTitle = "Page ToolTip";
+            this.pageWaveform.UniqueName = "WaveformPage";
+            // 
             // overlayWaveformCheckBox
             // 
-            this.overlayWaveformCheckBox.Location = new System.Drawing.Point(444, 41);
+            this.overlayWaveformCheckBox.Location = new System.Drawing.Point(8, 8);
             this.overlayWaveformCheckBox.Name = "overlayWaveformCheckBox";
             this.overlayWaveformCheckBox.Size = new System.Drawing.Size(156, 20);
             this.overlayWaveformCheckBox.TabIndex = 26;
@@ -313,7 +516,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             this.waveformStrengthLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.waveformStrengthLabel.Enabled = false;
-            this.waveformStrengthLabel.Location = new System.Drawing.Point(286, 246);
+            this.waveformStrengthLabel.Location = new System.Drawing.Point(3, 40);
             this.waveformStrengthLabel.Name = "waveformStrengthLabel";
             this.waveformStrengthLabel.Size = new System.Drawing.Size(145, 20);
             this.waveformStrengthLabel.TabIndex = 21;
@@ -323,7 +526,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             this.waveformStrengthValueLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.waveformStrengthValueLabel.Enabled = false;
-            this.waveformStrengthValueLabel.Location = new System.Drawing.Point(437, 246);
+            this.waveformStrengthValueLabel.Location = new System.Drawing.Point(144, 40);
             this.waveformStrengthValueLabel.Name = "waveformStrengthValueLabel";
             this.waveformStrengthValueLabel.Size = new System.Drawing.Size(33, 20);
             this.waveformStrengthValueLabel.TabIndex = 22;
@@ -335,11 +538,11 @@ namespace MovieBarCodeGenerator.GUI
             | System.Windows.Forms.AnchorStyles.Right)));
             this.waveformStrengthTrackBar.AutoSize = false;
             this.waveformStrengthTrackBar.Enabled = false;
-            this.waveformStrengthTrackBar.Location = new System.Drawing.Point(286, 266);
+            this.waveformStrengthTrackBar.Location = new System.Drawing.Point(8, 62);
             this.waveformStrengthTrackBar.Maximum = 100;
             this.waveformStrengthTrackBar.Minimum = 10;
             this.waveformStrengthTrackBar.Name = "waveformStrengthTrackBar";
-            this.waveformStrengthTrackBar.Size = new System.Drawing.Size(324, 24);
+            this.waveformStrengthTrackBar.Size = new System.Drawing.Size(305, 24);
             this.waveformStrengthTrackBar.TabIndex = 23;
             this.waveformStrengthTrackBar.TickFrequency = 10;
             this.waveformStrengthTrackBar.TickStyle = System.Windows.Forms.TickStyle.None;
@@ -351,7 +554,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             this.waveformColorLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.waveformColorLabel.Enabled = false;
-            this.waveformColorLabel.Location = new System.Drawing.Point(286, 301);
+            this.waveformColorLabel.Location = new System.Drawing.Point(3, 92);
             this.waveformColorLabel.Name = "waveformColorLabel";
             this.waveformColorLabel.Size = new System.Drawing.Size(100, 20);
             this.waveformColorLabel.TabIndex = 24;
@@ -362,7 +565,7 @@ namespace MovieBarCodeGenerator.GUI
             this.waveformColorButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.waveformColorButton.DropDownOrientation = Krypton.Toolkit.VisualOrientation.Top;
             this.waveformColorButton.Enabled = false;
-            this.waveformColorButton.Location = new System.Drawing.Point(392, 296);
+            this.waveformColorButton.Location = new System.Drawing.Point(114, 90);
             this.waveformColorButton.Name = "waveformColorButton";
             this.waveformColorButton.SelectedColor = System.Drawing.Color.White;
             this.waveformColorButton.Size = new System.Drawing.Size(100, 25);
@@ -372,114 +575,91 @@ namespace MovieBarCodeGenerator.GUI
             this.waveformColorButton.Values.Text = "";
             this.waveformColorButton.VisibleNoColor = false;
             // 
+            // pageBrightness
+            // 
+            this.pageBrightness.AutoHiddenSlideSize = new System.Drawing.Size(200, 200);
+            this.pageBrightness.Controls.Add(this.spectralBrightnessCheckBox);
+            this.pageBrightness.Controls.Add(this.brightnessLabel);
+            this.pageBrightness.Controls.Add(this.brightnessValueLabel);
+            this.pageBrightness.Controls.Add(this.brightnessTrackBar);
+            this.pageBrightness.Flags = 65534;
+            this.pageBrightness.LastVisibleSet = true;
+            this.pageBrightness.MinimumSize = new System.Drawing.Size(150, 50);
+            this.pageBrightness.Name = "pageBrightness";
+            this.pageBrightness.Size = new System.Drawing.Size(322, 292);
+            this.pageBrightness.Text = "Brightness";
+            this.pageBrightness.ToolTipTitle = "Page ToolTip";
+            this.pageBrightness.UniqueName = "BrightnessPage";
+            // 
+            // spectralBrightnessCheckBox
+            // 
+            this.spectralBrightnessCheckBox.Location = new System.Drawing.Point(8, 8);
+            this.spectralBrightnessCheckBox.Name = "spectralBrightnessCheckBox";
+            this.spectralBrightnessCheckBox.Size = new System.Drawing.Size(128, 20);
+            this.spectralBrightnessCheckBox.TabIndex = 27;
+            this.toolTip1.SetToolTip(this.spectralBrightnessCheckBox, "Grades every selected barcode by the audio spectral centroid: brighter sound, bri" +
+        "ghter bar (needs both video and audio). End-credits exclusion trims both streams" +
+        ".");
+            this.spectralBrightnessCheckBox.Values.Text = "Spectral brightness";
+            this.spectralBrightnessCheckBox.CheckedChanged += new System.EventHandler(this.spectralBrightnessCheckBox_CheckedChanged);
+            // 
+            // brightnessLabel
+            // 
+            this.brightnessLabel.Enabled = false;
+            this.brightnessLabel.Location = new System.Drawing.Point(8, 36);
+            this.brightnessLabel.Name = "brightnessLabel";
+            this.brightnessLabel.Size = new System.Drawing.Size(119, 20);
+            this.brightnessLabel.TabIndex = 28;
+            this.brightnessLabel.Values.Text = "Brightness intensity:";
+            // 
+            // brightnessValueLabel
+            // 
+            this.brightnessValueLabel.Enabled = false;
+            this.brightnessValueLabel.Location = new System.Drawing.Point(124, 36);
+            this.brightnessValueLabel.Name = "brightnessValueLabel";
+            this.brightnessValueLabel.Size = new System.Drawing.Size(33, 20);
+            this.brightnessValueLabel.TabIndex = 29;
+            this.brightnessValueLabel.Values.Text = "0.50";
+            // 
+            // brightnessTrackBar
+            // 
+            this.brightnessTrackBar.AutoSize = false;
+            this.brightnessTrackBar.Enabled = false;
+            this.brightnessTrackBar.Location = new System.Drawing.Point(8, 58);
+            this.brightnessTrackBar.Maximum = 100;
+            this.brightnessTrackBar.Minimum = 10;
+            this.brightnessTrackBar.Name = "brightnessTrackBar";
+            this.brightnessTrackBar.Size = new System.Drawing.Size(300, 24);
+            this.brightnessTrackBar.TabIndex = 30;
+            this.brightnessTrackBar.TickFrequency = 10;
+            this.brightnessTrackBar.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.toolTip1.SetToolTip(this.brightnessTrackBar, "Spectral brightness intensity, 0.1 = subtle, 1 = full range.");
+            this.brightnessTrackBar.Value = 50;
+            this.brightnessTrackBar.ValueChanged += new System.EventHandler(this.brightnessTrackBar_ValueChanged);
+            // 
             // modeSelectionLabel
             // 
-            this.modeSelectionLabel.Location = new System.Drawing.Point(1, 109);
+            this.modeSelectionLabel.Location = new System.Drawing.Point(6, 15);
             this.modeSelectionLabel.Name = "modeSelectionLabel";
             this.modeSelectionLabel.Size = new System.Drawing.Size(233, 20);
             this.modeSelectionLabel.TabIndex = 20;
             this.modeSelectionLabel.Values.Text = "Generate the following barcode versions:";
             // 
-            // excludeCreditsCheckBox
-            // 
-            this.excludeCreditsCheckBox.Location = new System.Drawing.Point(444, 15);
-            this.excludeCreditsCheckBox.Name = "excludeCreditsCheckBox";
-            this.excludeCreditsCheckBox.Size = new System.Drawing.Size(129, 20);
-            this.excludeCreditsCheckBox.TabIndex = 12;
-            this.toolTip1.SetToolTip(this.excludeCreditsCheckBox, "Detects dark end credits with a quick brightness scan and ends the barcode where " +
-        "they begin.");
-            this.excludeCreditsCheckBox.Values.Text = "Exclude end credits";
-            // 
             // barGeneratorList
             // 
-            this.barGeneratorList.Location = new System.Drawing.Point(6, 130);
+            this.barGeneratorList.Location = new System.Drawing.Point(6, 37);
             this.barGeneratorList.Name = "barGeneratorList";
-            this.barGeneratorList.Size = new System.Drawing.Size(274, 204);
+            this.barGeneratorList.Size = new System.Drawing.Size(274, 306);
             this.barGeneratorList.StateCommon.Border.Rounding = 3F;
             this.barGeneratorList.TabIndex = 18;
             this.barGeneratorList.SelectedIndexChanged += new System.EventHandler(this.barGeneratorList_SelectedIndexChanged);
             this.barGeneratorList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.barGeneratorList_ItemCheck);
             // 
-            // precendenceNote
-            // 
-            this.precendenceNote.Location = new System.Drawing.Point(190, 64);
-            this.precendenceNote.Name = "precendenceNote";
-            this.precendenceNote.Size = new System.Drawing.Size(210, 20);
-            this.precendenceNote.TabIndex = 17;
-            this.precendenceNote.Values.Text = "Note: bar width will take precedence";
-            // 
-            // barWidthLabel
-            // 
-            this.barWidthLabel.Location = new System.Drawing.Point(258, 15);
-            this.barWidthLabel.Name = "barWidthLabel";
-            this.barWidthLabel.Size = new System.Drawing.Size(119, 20);
-            this.barWidthLabel.TabIndex = 16;
-            this.barWidthLabel.Values.Text = "Bar width (in pixels):";
-            // 
-            // barWidthTextBox
-            // 
-            this.barWidthTextBox.Location = new System.Drawing.Point(261, 37);
-            this.barWidthTextBox.Name = "barWidthTextBox";
-            this.barWidthTextBox.Size = new System.Drawing.Size(55, 23);
-            this.barWidthTextBox.TabIndex = 10;
-            this.barWidthTextBox.Text = "1";
-            this.barWidthTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.barWidthTextBox_KeyUp);
-            // 
-            // barCountLabel
-            // 
-            this.barCountLabel.Location = new System.Drawing.Point(187, 15);
-            this.barCountLabel.Name = "barCountLabel";
-            this.barCountLabel.Size = new System.Drawing.Size(65, 20);
-            this.barCountLabel.TabIndex = 14;
-            this.barCountLabel.Values.Text = "Bar count:";
-            // 
-            // barCountTextBox
-            // 
-            this.barCountTextBox.Location = new System.Drawing.Point(190, 37);
-            this.barCountTextBox.Name = "barCountTextBox";
-            this.barCountTextBox.Size = new System.Drawing.Size(55, 23);
-            this.barCountTextBox.TabIndex = 9;
-            this.barCountTextBox.Text = "1000";
-            this.barCountTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.barCountTextBox_KeyUp);
-            // 
-            // label4
-            // 
-            this.label4.Location = new System.Drawing.Point(64, 37);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(16, 20);
-            this.label4.TabIndex = 11;
-            this.label4.Values.Text = "x";
-            // 
-            // imageHeightTextBox
-            // 
-            this.imageHeightTextBox.Location = new System.Drawing.Point(84, 37);
-            this.imageHeightTextBox.Name = "imageHeightTextBox";
-            this.imageHeightTextBox.Size = new System.Drawing.Size(55, 23);
-            this.imageHeightTextBox.TabIndex = 7;
-            this.imageHeightTextBox.Text = "256";
-            // 
-            // outputImageSizeLabel
-            // 
-            this.outputImageSizeLabel.Location = new System.Drawing.Point(3, 15);
-            this.outputImageSizeLabel.Name = "outputImageSizeLabel";
-            this.outputImageSizeLabel.Size = new System.Drawing.Size(126, 20);
-            this.outputImageSizeLabel.TabIndex = 1;
-            this.outputImageSizeLabel.Values.Text = "Image size (in pixels):";
-            // 
-            // imageWidthTextBox
-            // 
-            this.imageWidthTextBox.Location = new System.Drawing.Point(6, 37);
-            this.imageWidthTextBox.Name = "imageWidthTextBox";
-            this.imageWidthTextBox.Size = new System.Drawing.Size(55, 23);
-            this.imageWidthTextBox.TabIndex = 6;
-            this.imageWidthTextBox.Text = "1000";
-            this.imageWidthTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.imageWidthTextBox_KeyUp);
-            // 
             // progressBar
             // 
             this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar.Location = new System.Drawing.Point(72, 618);
+            this.progressBar.Location = new System.Drawing.Point(72, 625);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(478, 25);
             this.progressBar.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(184)))), ((int)(((byte)(234)))), ((int)(((byte)(255)))));
@@ -499,7 +679,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // logToggleButton
             // 
-            this.logToggleButton.Location = new System.Drawing.Point(12, 618);
+            this.logToggleButton.Location = new System.Drawing.Point(12, 625);
             this.logToggleButton.Name = "logToggleButton";
             this.logToggleButton.Size = new System.Drawing.Size(54, 25);
             this.logToggleButton.TabIndex = 17;
@@ -533,6 +713,19 @@ namespace MovieBarCodeGenerator.GUI
             this.optionsSection.Panel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.optionsSection)).EndInit();
             this.optionsSection.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.settingsWorkspace)).EndInit();
+            this.settingsWorkspace.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pageGeneral)).EndInit();
+            this.pageGeneral.ResumeLayout(false);
+            this.pageGeneral.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.settingsWorkspaceCell)).EndInit();
+            this.settingsWorkspaceCell.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pageWaveform)).EndInit();
+            this.pageWaveform.ResumeLayout(false);
+            this.pageWaveform.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pageBrightness)).EndInit();
+            this.pageBrightness.ResumeLayout(false);
+            this.pageBrightness.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -553,11 +746,18 @@ namespace MovieBarCodeGenerator.GUI
         private Krypton.Toolkit.KryptonLabel label11;
         private Krypton.Toolkit.KryptonTextBox extensionsTextBox;
         private Krypton.Toolkit.KryptonGroupBox optionsSection;
+        private Krypton.Workspace.KryptonWorkspace settingsWorkspace;
+        private Krypton.Workspace.KryptonWorkspaceCell settingsWorkspaceCell;
+        private Krypton.Navigator.KryptonPage pageGeneral;
+        private Krypton.Navigator.KryptonPage pageWaveform;
+        private Krypton.Navigator.KryptonPage pageBrightness;
         private Krypton.Toolkit.KryptonLabel barWidthLabel;
         private Krypton.Toolkit.KryptonTextBox barWidthTextBox;
         private Krypton.Toolkit.KryptonLabel barCountLabel;
         private Krypton.Toolkit.KryptonTextBox barCountTextBox;
         private Krypton.Toolkit.KryptonCheckBox excludeCreditsCheckBox;
+        private Krypton.Toolkit.KryptonCheckBox smoothedCheckBox;
+        private Krypton.Toolkit.KryptonCheckBox croppedCheckBox;
         private Krypton.Toolkit.KryptonLabel label4;
         private Krypton.Toolkit.KryptonTextBox imageHeightTextBox;
         private Krypton.Toolkit.KryptonLabel outputImageSizeLabel;
@@ -572,6 +772,10 @@ namespace MovieBarCodeGenerator.GUI
         private Krypton.Toolkit.KryptonLabel modeSelectionLabel;
         private Krypton.Toolkit.KryptonTextBox generatorInfoBody;
         private Krypton.Toolkit.KryptonCheckBox overlayWaveformCheckBox;
+        private Krypton.Toolkit.KryptonCheckBox spectralBrightnessCheckBox;
+        private Krypton.Toolkit.KryptonLabel brightnessLabel;
+        private Krypton.Toolkit.KryptonLabel brightnessValueLabel;
+        private Krypton.Toolkit.KryptonTrackBar brightnessTrackBar;
         private Krypton.Toolkit.KryptonLabel waveformStrengthLabel;
         private Krypton.Toolkit.KryptonLabel waveformStrengthValueLabel;
         private Krypton.Toolkit.KryptonTrackBar waveformStrengthTrackBar;

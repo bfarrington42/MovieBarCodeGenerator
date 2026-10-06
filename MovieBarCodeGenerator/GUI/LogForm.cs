@@ -16,6 +16,15 @@ partial class LogForm : Krypton.Toolkit.KryptonForm
 
     public event EventHandler UserClosed;
 
+    /// <summary>
+    /// The log is a read-only display surface (no scrollbars, auto-scrolls
+    /// on append), so it never needs focus to do its job. Opening it without
+    /// activation keeps foreground on the main form, which avoids the
+    /// intermittent first-show glitch where the owner lost foreground and
+    /// sank behind other windows until the log was closed.
+    /// </summary>
+    protected override bool ShowWithoutActivation => true;
+
     public LogForm()
     {
         _logBox = new Krypton.Toolkit.KryptonTextBox
