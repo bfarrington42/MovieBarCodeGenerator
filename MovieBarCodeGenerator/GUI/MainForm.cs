@@ -105,6 +105,22 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
                     new SubjectColorBarGenerator("Subject color"),
                     "Paints each bar the dominant color of the largest object in its frame. Like dominant color, but isolated to the main subject.",
                     initialCheckState: false),
+                new BarGeneratorViewModel(
+                    new SpectralColorBarGenerator("Audio spectrum"),
+                    "Paints each bar the visible color of its dominant audio frequency, normalized per movie from dullest red to brightest violet. Audio-only. End-credits exclusion is ignored for audio-only runs.",
+                    initialCheckState: false),
+                new BarGeneratorViewModel(
+                    new BlackbodyColorBarGenerator("Audio blackbody"),
+                    "Paints each bar the blackbody color of its dominant audio frequency, normalized per movie from ember orange to pale blue. Audio-only. End-credits exclusion is ignored for audio-only runs.",
+                    initialCheckState: false),
+                new BarGeneratorViewModel(
+                    new ChromaColorBarGenerator("Audio harmony"),
+                    "Paints each bar the hue of its dominant pitch class, vivid for clear harmony washing toward white for diffuse sound. Audio-only. End-credits exclusion is ignored for audio-only runs.",
+                    initialCheckState: false),
+                new BarGeneratorViewModel(
+                    new ElevationColorBarGenerator("Audio elevation"),
+                    "Paints each bar the elevation color of its dominant audio frequency, normalized per movie from deep purple basins to white peaks. Audio-only. End-credits exclusion is ignored for audio-only runs.",
+                    initialCheckState: false),
             };
 
         barGeneratorList.DisplayMember = nameof(BarGeneratorViewModel.DisplayName);
@@ -119,6 +135,7 @@ public partial class MainForm : Krypton.Toolkit.KryptonForm
         barGeneratorList.SelectedItem = null; // Unselect so a click on the line will not uncheck the item.
         UpdateWaveformControlsAvailability();
         UpdateBrightnessControlsAvailability();
+        UpdateSettingsTabsAvailability();
 
         AppendLog(Text);
 
@@ -823,6 +840,8 @@ Bar width: {parameters.BarWidth}");
 
         UpdateExcludeCreditsAvailability();
         UpdateWaveformControlsAvailability();
+        UpdateBrightnessControlsAvailability();
+        UpdateSettingsTabsAvailability();
     }
 
     private void UpdateExcludeCreditsAvailability()
@@ -890,11 +909,11 @@ Bar width: {parameters.BarWidth}");
     /// </summary>
     private void SelectSettingsPage()
     {
-        if (overlayWaveformCheckBox.Checked)
+        if (overlayWaveformCheckBox.Checked && pageWaveform.Enabled)
         {
             settingsWorkspaceCell.SelectedPage = pageWaveform;
         }
-        else if (spectralBrightnessCheckBox.Checked)
+        else if (spectralBrightnessCheckBox.Checked && pageBrightness.Enabled)
         {
             settingsWorkspaceCell.SelectedPage = pageBrightness;
         }
@@ -902,6 +921,23 @@ Bar width: {parameters.BarWidth}");
         {
             settingsWorkspaceCell.SelectedPage = pageGeneral;
         }
+    }
+
+    /// <summary>
+    /// The Waveform and Brightness pages only apply to video-based modes, so
+    /// their tabs stay disabled for audio-only runs. Falls back to General
+    /// before disabling.
+    /// </summary>
+    private void UpdateSettingsTabsAvailability()
+    {
+        bool videoSelected = _barGenerators.Any(x => x.Checked && x.Generator is not IAudioBarGenerator);
+        if (!videoSelected)
+        {
+            settingsWorkspaceCell.SelectedPage = pageGeneral;
+        }
+
+        pageWaveform.Enabled = videoSelected;
+        pageBrightness.Enabled = videoSelected;
     }
 
     /// <summary>

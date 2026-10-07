@@ -28,7 +28,7 @@ public class MagicScalerBarGenerator : IBarGenerator
 
     public MagicScalerBarGenerator(
         string displayName,
-        string fileNameSuffix = "",
+        string fileNameSuffix = "_normal",
         bool average = false,
         InterpolationSettings? interpolation = null)
     {

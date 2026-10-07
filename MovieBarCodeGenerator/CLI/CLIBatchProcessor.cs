@@ -127,6 +127,22 @@ This parameter can be set multiple times.",
             "Generate a subject-color barcode (each bar painted the dominant color of the largest object in its frame).\nDefaults to False.",
             x => arguments.GenerateSubject = x != null);
 
+        options.Add("spectrum",
+            "Generate an audio spectrum barcode (each bar painted the visible color of its dominant audio frequency, normalized per movie, audio-only).\nDefaults to False.",
+            x => arguments.GenerateSpectrum = x != null);
+
+        options.Add("blackbody",
+            "Generate an audio blackbody barcode (each bar painted the blackbody color of its dominant audio frequency, normalized per movie, audio-only).\nDefaults to False.",
+            x => arguments.GenerateBlackbody = x != null);
+
+        options.Add("harmony",
+            "Generate an audio harmony barcode (each bar painted the hue of its dominant pitch class, audio-only).\nDefaults to False.",
+            x => arguments.GenerateHarmony = x != null);
+
+        options.Add("elevation",
+            "Generate an audio elevation barcode (each bar painted the elevation color of its dominant audio frequency, normalized per movie, audio-only).\nDefaults to False.",
+            x => arguments.GenerateElevation = x != null);
+
         options.Add("waveform-overlay",
             "Blend the audio waveform into every selected barcode in HSV (needs both video and audio).\nDefaults to False.",
             x => arguments.GenerateWaveformOverlay = x != null);
@@ -289,6 +305,18 @@ This parameter can be set multiple times.",
         if (arguments.GenerateSubject)
             generators.Add(new SubjectColorBarGenerator("Subject color"));
 
+        if (arguments.GenerateSpectrum)
+            generators.Add(new SpectralColorBarGenerator("Audio spectrum"));
+
+        if (arguments.GenerateBlackbody)
+            generators.Add(new BlackbodyColorBarGenerator("Audio blackbody"));
+
+        if (arguments.GenerateHarmony)
+            generators.Add(new ChromaColorBarGenerator("Audio harmony"));
+
+        if (arguments.GenerateElevation)
+            generators.Add(new ElevationColorBarGenerator("Audio elevation"));
+
         if (!generators.Any())
         {
             Console.WriteLine("No generator.");
@@ -450,6 +478,10 @@ class RawArguments
     public bool GenerateCropped { get; set; }
     public bool GenerateDominant { get; set; }
     public bool GenerateSubject { get; set; }
+    public bool GenerateSpectrum { get; set; }
+    public bool GenerateBlackbody { get; set; }
+    public bool GenerateHarmony { get; set; }
+    public bool GenerateElevation { get; set; }
     public bool GenerateWaveformOverlay { get; set; }
     public string RawWaveformStrength { get; set; } = null;
     public string RawWaveformColor { get; set; } = null;

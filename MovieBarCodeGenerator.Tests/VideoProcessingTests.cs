@@ -546,4 +546,190 @@ public class VideoProcessingTests
             }
         }
     }
+
+    [Test]
+    public void ImageStreamProcessor_AudioOnly_Generator_Needs_No_Video()
+    {
+        // test_av.mkv carries a constant 440Hz tone: every bar maps to the
+        // same non-black color without any video decoding.
+        CreateTestAudioVideoIfNecessary();
+        var ffmpeg = new FfmpegWrapper(FfmpegExecutablePath);
+        var processor = new ImageStreamProcessor();
+
+        var spectrum = new SpectralColorBarGenerator("Audio spectrum");
+
+        var result = processor.CreateBarCodes(
+            CreateParameters(TestAudioVideoFileName, spectrum),
+            ffmpeg,
+            CancellationToken.None);
+
+        try
+        {
+            Assert.AreEqual(1, result.Count);
+            using var bitmap = result[spectrum];
+            Assert.AreEqual(60, bitmap.Width);
+            Assert.AreEqual(32, bitmap.Height);
+
+            int first = bitmap.GetPixel(0, 0).ToArgb();
+            Assert.AreNotEqual(Color.Black.ToArgb(), first);
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    Assert.AreEqual(first, bitmap.GetPixel(x, y).ToArgb(), $"Pixel ({x}, {y}) should share the tone color.");
+                }
+            }
+        }
+        finally
+        {
+            foreach (var bitmap in result.Values)
+            {
+                bitmap.Dispose();
+            }
+        }
+    }
+
+    [Test]
+    public void ImageStreamProcessor_AudioOnly_Silent_Input_Throws()
+    {
+        // test.mkv has no audio track: an audio-only run cannot produce output.
+        CreateTestVideoIfNecessary();
+        var ffmpeg = new FfmpegWrapper(FfmpegExecutablePath);
+        var processor = new ImageStreamProcessor();
+
+        var spectrum = new SpectralColorBarGenerator("Audio spectrum");
+
+        Assert.Throws<InvalidOperationException>(() => processor.CreateBarCodes(
+            CreateParameters(TestVideoFileName, spectrum),
+            ffmpeg,
+            CancellationToken.None));
+    }
+
+    [Test]
+    public void ImageStreamProcessor_BlackbodyAudioOnly_Generator_Needs_No_Video()
+    {
+        // test_av.mkv carries a constant 440Hz tone: every bar maps to the
+        // same non-black color without any video decoding.
+        CreateTestAudioVideoIfNecessary();
+        var ffmpeg = new FfmpegWrapper(FfmpegExecutablePath);
+        var processor = new ImageStreamProcessor();
+
+        var blackbody = new BlackbodyColorBarGenerator("Audio blackbody");
+
+        var result = processor.CreateBarCodes(
+            CreateParameters(TestAudioVideoFileName, blackbody),
+            ffmpeg,
+            CancellationToken.None);
+
+        try
+        {
+            Assert.AreEqual(1, result.Count);
+            using var bitmap = result[blackbody];
+            Assert.AreEqual(60, bitmap.Width);
+            Assert.AreEqual(32, bitmap.Height);
+
+            int first = bitmap.GetPixel(0, 0).ToArgb();
+            Assert.AreNotEqual(Color.Black.ToArgb(), first);
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    Assert.AreEqual(first, bitmap.GetPixel(x, y).ToArgb(), $"Pixel ({x}, {y}) should share the tone color.");
+                }
+            }
+        }
+        finally
+        {
+            foreach (var bitmap in result.Values)
+            {
+                bitmap.Dispose();
+            }
+        }
+    }
+
+    [Test]
+    public void ImageStreamProcessor_HarmonyAudioOnly_Generator_Needs_No_Video()
+    {
+        // test_av.mkv carries a constant 440Hz tone: every bar lands in the
+        // violet family without any video decoding. Excerpt phases vary, so
+        // assert the family, not exact equality.
+        CreateTestAudioVideoIfNecessary();
+        var ffmpeg = new FfmpegWrapper(FfmpegExecutablePath);
+        var processor = new ImageStreamProcessor();
+
+        var harmony = new ChromaColorBarGenerator("Audio harmony");
+
+        var result = processor.CreateBarCodes(
+            CreateParameters(TestAudioVideoFileName, harmony),
+            ffmpeg,
+            CancellationToken.None);
+
+        try
+        {
+            Assert.AreEqual(1, result.Count);
+            using var bitmap = result[harmony];
+            Assert.AreEqual(60, bitmap.Width);
+            Assert.AreEqual(32, bitmap.Height);
+
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    var pixel = bitmap.GetPixel(x, y);
+                    Assert.AreNotEqual(Color.Black.ToArgb(), pixel.ToArgb(), $"Pixel ({x}, {y}) should not be black.");
+                    Assert.AreEqual(255, pixel.B);
+                    Assert.That(pixel.R, Is.InRange(100, 160));
+                }
+            }
+        }
+        finally
+        {
+            foreach (var bitmap in result.Values)
+            {
+                bitmap.Dispose();
+            }
+        }
+    }
+
+    [Test]
+    public void ImageStreamProcessor_ElevationAudioOnly_Generator_Needs_No_Video()
+    {
+        // test_av.mkv carries a constant 440Hz tone: every bar maps to the
+        // same non-black color without any video decoding.
+        CreateTestAudioVideoIfNecessary();
+        var ffmpeg = new FfmpegWrapper(FfmpegExecutablePath);
+        var processor = new ImageStreamProcessor();
+
+        var elevation = new ElevationColorBarGenerator("Audio elevation");
+
+        var result = processor.CreateBarCodes(
+            CreateParameters(TestAudioVideoFileName, elevation),
+            ffmpeg,
+            CancellationToken.None);
+
+        try
+        {
+            Assert.AreEqual(1, result.Count);
+            using var bitmap = result[elevation];
+            Assert.AreEqual(60, bitmap.Width);
+            Assert.AreEqual(32, bitmap.Height);
+
+            int first = bitmap.GetPixel(0, 0).ToArgb();
+            Assert.AreNotEqual(Color.Black.ToArgb(), first);
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    Assert.AreEqual(first, bitmap.GetPixel(x, y).ToArgb(), $"Pixel ({x}, {y}) should share the tone color.");
+                }
+            }
+        }
+        finally
+        {
+            foreach (var bitmap in result.Values)
+            {
+                bitmap.Dispose();
+            }
+        }
+    }
 }

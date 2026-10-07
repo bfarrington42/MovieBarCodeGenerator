@@ -347,13 +347,13 @@ namespace MovieBarCodeGenerator.GUI
             this.generatorInfoBody.Multiline = true;
             this.generatorInfoBody.Name = "generatorInfoBody";
             this.generatorInfoBody.ReadOnly = true;
-            this.generatorInfoBody.Size = new System.Drawing.Size(305, 74);
+            this.generatorInfoBody.Size = new System.Drawing.Size(305, 80);
             this.generatorInfoBody.StateCommon.Border.Draw = Krypton.Toolkit.InheritBool.False;
             this.generatorInfoBody.TabIndex = 15;
             // 
             // outputImageSizeLabel
             // 
-            this.outputImageSizeLabel.Location = new System.Drawing.Point(8, 88);
+            this.outputImageSizeLabel.Location = new System.Drawing.Point(8, 93);
             this.outputImageSizeLabel.Name = "outputImageSizeLabel";
             this.outputImageSizeLabel.Size = new System.Drawing.Size(126, 20);
             this.outputImageSizeLabel.TabIndex = 1;
@@ -361,7 +361,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // imageWidthTextBox
             // 
-            this.imageWidthTextBox.Location = new System.Drawing.Point(8, 106);
+            this.imageWidthTextBox.Location = new System.Drawing.Point(8, 113);
             this.imageWidthTextBox.Name = "imageWidthTextBox";
             this.imageWidthTextBox.Size = new System.Drawing.Size(55, 23);
             this.imageWidthTextBox.TabIndex = 6;
@@ -370,7 +370,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // label4
             // 
-            this.label4.Location = new System.Drawing.Point(66, 108);
+            this.label4.Location = new System.Drawing.Point(66, 115);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(16, 20);
             this.label4.TabIndex = 11;
@@ -378,7 +378,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // imageHeightTextBox
             // 
-            this.imageHeightTextBox.Location = new System.Drawing.Point(88, 106);
+            this.imageHeightTextBox.Location = new System.Drawing.Point(88, 113);
             this.imageHeightTextBox.Name = "imageHeightTextBox";
             this.imageHeightTextBox.Size = new System.Drawing.Size(55, 23);
             this.imageHeightTextBox.TabIndex = 7;
@@ -386,7 +386,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // barCountLabel
             // 
-            this.barCountLabel.Location = new System.Drawing.Point(8, 137);
+            this.barCountLabel.Location = new System.Drawing.Point(8, 144);
             this.barCountLabel.Name = "barCountLabel";
             this.barCountLabel.Size = new System.Drawing.Size(65, 20);
             this.barCountLabel.TabIndex = 14;
@@ -394,7 +394,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // barCountTextBox
             // 
-            this.barCountTextBox.Location = new System.Drawing.Point(8, 155);
+            this.barCountTextBox.Location = new System.Drawing.Point(8, 162);
             this.barCountTextBox.Name = "barCountTextBox";
             this.barCountTextBox.Size = new System.Drawing.Size(55, 23);
             this.barCountTextBox.TabIndex = 9;
@@ -403,7 +403,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // barWidthLabel
             // 
-            this.barWidthLabel.Location = new System.Drawing.Point(79, 139);
+            this.barWidthLabel.Location = new System.Drawing.Point(79, 146);
             this.barWidthLabel.Name = "barWidthLabel";
             this.barWidthLabel.Size = new System.Drawing.Size(119, 20);
             this.barWidthLabel.TabIndex = 16;
@@ -411,7 +411,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // barWidthTextBox
             // 
-            this.barWidthTextBox.Location = new System.Drawing.Point(88, 155);
+            this.barWidthTextBox.Location = new System.Drawing.Point(88, 162);
             this.barWidthTextBox.Name = "barWidthTextBox";
             this.barWidthTextBox.Size = new System.Drawing.Size(55, 23);
             this.barWidthTextBox.TabIndex = 10;
@@ -420,7 +420,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // precendenceNote
             // 
-            this.precendenceNote.Location = new System.Drawing.Point(8, 182);
+            this.precendenceNote.Location = new System.Drawing.Point(8, 189);
             this.precendenceNote.Name = "precendenceNote";
             this.precendenceNote.Size = new System.Drawing.Size(210, 20);
             this.precendenceNote.TabIndex = 17;
@@ -428,7 +428,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // excludeCreditsCheckBox
             // 
-            this.excludeCreditsCheckBox.Location = new System.Drawing.Point(8, 204);
+            this.excludeCreditsCheckBox.Location = new System.Drawing.Point(8, 211);
             this.excludeCreditsCheckBox.Name = "excludeCreditsCheckBox";
             this.excludeCreditsCheckBox.Size = new System.Drawing.Size(129, 20);
             this.excludeCreditsCheckBox.TabIndex = 12;
@@ -438,7 +438,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // smoothedCheckBox
             // 
-            this.smoothedCheckBox.Location = new System.Drawing.Point(8, 226);
+            this.smoothedCheckBox.Location = new System.Drawing.Point(8, 233);
             this.smoothedCheckBox.Name = "smoothedCheckBox";
             this.smoothedCheckBox.Size = new System.Drawing.Size(80, 20);
             this.smoothedCheckBox.TabIndex = 31;
@@ -448,7 +448,7 @@ namespace MovieBarCodeGenerator.GUI
             // 
             // croppedCheckBox
             // 
-            this.croppedCheckBox.Location = new System.Drawing.Point(8, 248);
+            this.croppedCheckBox.Location = new System.Drawing.Point(8, 255);
             this.croppedCheckBox.Name = "croppedCheckBox";
             this.croppedCheckBox.Size = new System.Drawing.Size(71, 20);
             this.croppedCheckBox.TabIndex = 32;

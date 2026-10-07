@@ -58,6 +58,14 @@
     <Compile Include="SubjectColorBarGeneratorTests.cs" />
     <Compile Include="CreditDetectorTests.cs" />
     <Compile Include="WaveformBarGeneratorTests.cs" />
+    <Compile Include="SpectralColorTests.cs" />
+    <Compile Include="BlackbodyColorTests.cs" />
+    <Compile Include="AudioPeaksTests.cs" />
+    <Compile Include="BlackbodyColorBarGeneratorTests.cs" />
+    <Compile Include="ElevationColorTests.cs" />
+    <Compile Include="ElevationColorBarGeneratorTests.cs" />
+    <Compile Include="ChromaColorTests.cs" />
+    <Compile Include="ChromaColorBarGeneratorTests.cs" />
     <Compile Include="SpectralBrightnessTests.cs" />
     <Compile Include="HsvColorTests.cs" />
     <Compile Include="SmoothingTests.cs" />

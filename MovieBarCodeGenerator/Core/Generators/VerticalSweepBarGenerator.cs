@@ -30,7 +30,7 @@ public class VerticalSweepBarGenerator : IFrameAwareBarGenerator
 {
     public VerticalSweepBarGenerator(
         string displayName,
-        string fileNameSuffix = "_vertical_sweep")
+        string fileNameSuffix = "_vertical")
     {
         _displayName = displayName;
         FileNameSuffix = fileNameSuffix ?? "";
