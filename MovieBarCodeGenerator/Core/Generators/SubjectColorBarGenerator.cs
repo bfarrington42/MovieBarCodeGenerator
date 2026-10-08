@@ -31,7 +31,6 @@ namespace MovieBarCodeGenerator.Core.Generators;
 public class SubjectColorBarGenerator : IBarGenerator
 {
     private const int SampleSize = 64;
-    private const double CropFraction = 0.125;
     private const int EdgeThreshold = 50;
     private const double MinBlobFraction = 0.02;
     private const int MinSubjectBrightness = 16;
@@ -53,20 +52,8 @@ public class SubjectColorBarGenerator : IBarGenerator
     {
         using var sourceImage = Image.FromStream(source, true, false);
 
-        // Apply cropping to get rid of any potential letterboxing as that will throw the whole thing off
-        // See additional notes in LetterboxCropBarGenerator regarding doing this
-        int cropY = (int)(sourceImage.Height * CropFraction);
-        int cropHeight = Math.Max(1, sourceImage.Height - (2 * cropY));
-        using var cropped = new Bitmap(sourceImage.Width, cropHeight);
-        cropped.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-        using (var g = Graphics.FromImage(cropped))
-        {
-            g.DrawImage(
-                sourceImage,
-                new Rectangle(0, 0, cropped.Width, cropHeight),
-                new Rectangle(0, cropY, sourceImage.Width, cropHeight),
-                GraphicsUnit.Pixel);
-        }
+        // Strip letterbox bars (when present) since they throw the whole thing off.
+        using var cropped = LetterboxCrop.CropFrame((Bitmap)sourceImage, LetterboxCrop.DefaultCropFraction);
 
         // Create a thumbnail to work with since it'll be faster
         using var thumbnail = new GdiBarGenerator().GetResizedImage(cropped, SampleSize, SampleSize);
