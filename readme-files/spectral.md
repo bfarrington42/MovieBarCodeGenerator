@@ -75,8 +75,7 @@ $$
 
 The intensity factor is
 
-$$
-S(\lambda)=
+$$S(\lambda)=
 \begin{cases}
 0.3+0.7\frac{\lambda-380}{40},
     &380\leq\lambda<420\\[4pt]
@@ -89,8 +88,7 @@ $$
 
 Apply $\gamma=0.8$ and scale to 8-bit RGB:
 
-$$
-\boxed{
+$$\boxed{
 (R_8,G_8,B_8)
 =
 255\left[(RS)^{0.8},\,(GS)^{0.8},\,(BS)^{0.8}\right]
