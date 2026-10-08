@@ -22,7 +22,9 @@ Each bar contributes a fixed 2048-sample window, which is the center excerpt of 
 
 The window runs through NWaves' chroma extractor with a [Hann window](https://en.wikipedia.org/wiki/Hann_function) into 12 pitch-class bins ordered chromatically from C:
 
-$$[C, C\text{#}, D, D\text{#}, E, F, F\text{#}, G, G\text{#}, A, A\text{#}, B]$$
+```
+[C, C#, D, D#, E, F, F#, G, G#, A, A#, B]
+```
 
 so a pure A440 reads as a spike at bin 9. Fixed windows keep the frequency resolution identical for every bar, unlike the variable-length FFTs of the peak-based modes.
 
