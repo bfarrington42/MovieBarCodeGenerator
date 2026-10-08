@@ -55,7 +55,7 @@ bass being red through treble being violet.
 
 For wavelength $\lambda$ (nm), $380 \leq \lambda \leq 780$:
 
-$$
+```math
 (R,G,B)=
 \begin{cases}
 \left(\frac{440-\lambda}{60},\,0,\,1\right),
@@ -71,11 +71,12 @@ $$
 (1,\,0,\,0),
     &645\leq\lambda\leq780
 \end{cases}
-$$
+```
 
 The intensity factor is
 
-$$S(\lambda)=
+```math
+S(\lambda)=
 \begin{cases}
 0.3+0.7\frac{\lambda-380}{40},
     &380\leq\lambda<420\
@@ -84,7 +85,7 @@ $$S(\lambda)=
 0.3+0.7\frac{780-\lambda}{80},
     &700<\lambda\leq780
 \end{cases}
-$$
+```
 
 Apply $\gamma=0.8$ and scale to 8-bit RGB:
 
