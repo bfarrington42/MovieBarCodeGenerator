@@ -20,7 +20,7 @@ The new subject color generator take it a bit further and makes use of blob extr
 
 There are other new generators in there as well, and I still have ideas left to try.
 
-[See full list](reame-files/generators.md)
+[See full list](readme-files/generators.md)
 
 ## Usage
 
