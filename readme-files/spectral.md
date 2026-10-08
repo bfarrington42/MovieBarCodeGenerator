@@ -59,15 +59,15 @@ $$
 (R,G,B)=
 \begin{cases}
 \left(\frac{440-\lambda}{60},\,0,\,1\right),
-    &380\leq\lambda<440\\[4pt]
+    &380\leq\lambda<440\
 \left(0,\,\frac{\lambda-440}{50},\,1\right),
-    &440\leq\lambda<490\\[4pt]
+    &440\leq\lambda<490\
 \left(0,\,1,\,\frac{510-\lambda}{20}\right),
-    &490\leq\lambda<510\\[4pt]
+    &490\leq\lambda<510\
 \left(\frac{\lambda-510}{70},\,1,\,0\right),
-    &510\leq\lambda<580\\[4pt]
+    &510\leq\lambda<580\
 \left(1,\,\frac{645-\lambda}{65},\,0\right),
-    &580\leq\lambda<645\\[4pt]
+    &580\leq\lambda<645\
 (1,\,0,\,0),
     &645\leq\lambda\leq780
 \end{cases}
@@ -78,9 +78,9 @@ The intensity factor is
 $$S(\lambda)=
 \begin{cases}
 0.3+0.7\frac{\lambda-380}{40},
-    &380\leq\lambda<420\\[4pt]
+    &380\leq\lambda<420\
 1,
-    &420\leq\lambda\leq700\\[4pt]
+    &420\leq\lambda\leq700\
 0.3+0.7\frac{780-\lambda}{80},
     &700<\lambda\leq780
 \end{cases}
@@ -88,12 +88,7 @@ $$
 
 Apply $\gamma=0.8$ and scale to 8-bit RGB:
 
-$$\boxed{
-(R_8,G_8,B_8)
-=
-255\left[(RS)^{0.8},\,(GS)^{0.8},\,(BS)^{0.8}\right]
-}
-$$
+$$(R_8,G_8,B_8) = 255\left[(RS)^{0.8},\,(GS)^{0.8},\,(BS)^{0.8}\right]$$
 
 Wavelengths outside 380–780 nm are mapped to black.
 
